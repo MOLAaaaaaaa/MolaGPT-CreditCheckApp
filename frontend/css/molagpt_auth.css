@@ -1,0 +1,2318 @@
+     /* 当前设备卡片 */
+    .passkey-current-device {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 14px;
+        margin-bottom: 16px;
+        position: relative;
+    }
+    
+    .passkey-device-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+    
+    .passkey-device-header i {
+        color: var(--primary-color);
+        font-size: 14px;
+    }
+    
+    .passkey-device-header span {
+        font-weight: 500;
+        color: var(--text-primary);
+        font-size: 14px;
+        flex: 1;
+    }
+    
+    .passkey-device-badge {
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .passkey-device-badge.enabled {
+        background: rgba(16, 185, 129, 0.1);
+        color: #059669;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    
+    .passkey-device-badge.disabled {
+        background: rgba(107, 114, 128, 0.1);
+        color: #6b7280;
+        border: 1px solid rgba(107, 114, 128, 0.2);
+    }
+    
+    .passkey-device-details {
+        background: var(--bg-primary);
+        border-radius: var(--radius-sm);
+        padding: 10px;
+        margin-top: 8px;
+    }
+    
+    .passkey-device-details .passkey-detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 0;
+        font-size: 11px;
+    }
+    
+    .passkey-device-details .passkey-detail-row span:first-child {
+        color: var(--text-secondary);
+    }
+    
+    .passkey-device-details .passkey-detail-row span:last-child {
+        color: var(--text-primary);
+        font-family: 'SFMono-Regular', Consolas, monospace;
+    }
+    
+    .passkey-device-warning {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 10px;
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+        border-radius: var(--radius-sm);
+        color: #d97706;
+        font-size: 12px;
+        margin-top: 8px;
+    }
+    
+    /* 分隔线 */
+    .passkey-separator {
+        height: 1px;
+        background: var(--border-color);
+        margin: 20px 0;
+    }
+    
+    /* 多设备管理区域 */
+    .passkey-multi-device-section {
+        margin-top: 16px;
+    }
+    
+    .passkey-section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+    
+    .passkey-section-header h4 {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0;
+    }
+    
+    .passkey-device-count {
+        background: var(--bg-tertiary);
+        color: var(--text-secondary);
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: 500;
+    }
+    
+    /* 设备列表 */
+    .passkey-device-list {
+        margin-bottom: 16px;
+    }
+    
+    .passkey-device-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        margin-bottom: 8px;
+        transition: all 0.2s ease;
+    }
+    
+    .passkey-device-item:hover {
+        background: var(--bg-tertiary);
+        border-color: var(--primary-color);
+    }
+    
+    .passkey-device-item.current {
+        border-color: var(--primary-color);
+        background: rgba(190, 114, 127, 0.05);
+    }
+    
+    .passkey-device-info {
+        flex: 1;
+    }
+    
+    .passkey-device-name {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 4px;
+    }
+    
+    .passkey-device-name i {
+        color: var(--primary-color);
+        font-size: 12px;
+    }
+    
+    .current-badge {
+        background: var(--primary-color);
+        color: white;
+        padding: 1px 6px;
+        border-radius: 8px;
+        font-size: 9px;
+        font-weight: 500;
+        margin-left: 6px;
+    }
+    
+    .passkey-device-meta {
+        font-size: 11px;
+        color: var(--text-secondary);
+        line-height: 1.3;
+    }
+    
+    .passkey-device-remove {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        background: transparent;
+        color: #ef4444;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        flex-shrink: 0;
+    }
+    
+    .passkey-device-remove:hover {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: #ef4444;
+    }
+    
+    .passkey-device-remove:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    /* 危险区域 */
+    .passkey-danger-zone {
+        margin-top: 16px;
+        padding: 14px;
+        background: rgba(239, 68, 68, 0.05);
+        border: 1px solid rgba(239, 68, 68, 0.1);
+        border-radius: var(--radius-md);
+    }
+    
+    .passkey-action-btn.full-width {
+        width: 100%;
+    }
+    
+    /* 操作按钮增强 */
+    .passkey-actions .passkey-action-btn {
+        margin-bottom: 0;
+    }
+    
+    /* 移动端适配 */
+    @media (max-width: 768px) {
+        .passkey-current-device {
+            padding: 12px;
+        }
+        
+        .passkey-device-header {
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        
+        .passkey-device-badge {
+            order: 3;
+            flex-basis: 100%;
+            margin-top: 4px;
+            align-self: flex-start;
+            width: fit-content;
+        }
+        
+        .passkey-device-item {
+            padding: 10px;
+        }
+        
+        .passkey-device-name {
+            font-size: 12px;
+        }
+        
+        .passkey-device-meta {
+            font-size: 10px;
+        }
+        
+        .passkey-device-remove {
+            width: 20px;
+            height: 20px;
+            font-size: 10px;
+        }
+        
+        .passkey-danger-zone {
+            padding: 12px;
+        }
+        
+        .passkey-section-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+    }
+    
+    /* 深色主题适配 */
+    body.dark-theme .passkey-current-device {
+        background: var(--dark-bg-secondary, #2a2a2a);
+        border-color: var(--dark-border, #333);
+    }
+    
+    body.dark-theme .passkey-device-details {
+        background: var(--dark-bg-primary, #1a1a1a);
+    }
+    
+    body.dark-theme .passkey-device-item {
+        background: var(--dark-bg-secondary, #2a2a2a);
+        border-color: var(--dark-border, #333);
+    }
+    
+    body.dark-theme .passkey-device-item:hover {
+        background: var(--dark-bg-tertiary, #333);
+    }
+    
+    body.dark-theme .passkey-device-item.current {
+        background: rgba(190, 114, 127, 0.1);
+    }
+    
+    body.dark-theme .passkey-device-count {
+        background: var(--dark-bg-tertiary, #333);
+        color: var(--dark-text-secondary, #aaa);
+    }
+    
+    body.dark-theme .passkey-separator {
+        background: var(--dark-border, #333);
+    }
+    
+    body.dark-theme .passkey-danger-zone {
+        background: rgba(239, 68, 68, 0.08);
+        border-color: rgba(239, 68, 68, 0.15);
+    }
+    
+    body.dark-theme .passkey-device-warning {
+        background: rgba(245, 158, 11, 0.12);
+        border-color: rgba(245, 158, 11, 0.25);
+        color: #fbbf24;
+    }
+    /* 通行密钥登录主容器 */
+    .passkey-login-section {
+        text-align: center;
+        padding: 24px 20px !important;
+        background: var(--bg-secondary);
+        border-radius: var(--radius-md);
+        margin: 16px 0;
+        border: 1px solid var(--border-color);
+    }
+    
+    /* 通行密钥图标 */
+    .passkey-icon-main {
+        font-size: 3rem !important;
+        color: var(--primary-color);
+        margin-bottom: 16px !important;
+        display: block;
+    }
+    
+    /* 通行密钥登录标题 */
+    .passkey-login-title {
+        margin-bottom: 8px !important;
+        color: var(--text-primary) !important;
+        font-size: 1.3rem !important;
+        font-weight: 600 !important;
+    }
+    
+    /* 通行密钥登录描述 */
+    .passkey-login-description {
+        color: var(--text-secondary) !important;
+        margin-bottom: 20px !important;
+        line-height: 1.4 !important;
+        font-size: 1.1rem !important;
+        max-width: 280px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    /* 通行密钥登录按钮 */
+    .passkey-login-btn {
+        width: 100% !important;
+        padding: 12px 20px !important;
+        background: var(--primary-color) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: var(--radius-md) !important;
+        font-size: 12.8px !important;
+        font-weight: 500 !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 8px !important;
+    }
+    
+    .passkey-login-btn:hover {
+        background: var(--primary-hover) !important;
+        transform: translateY(-1px) !important;
+    }
+    
+    .passkey-login-btn:disabled {
+        opacity: 0.6 !important;
+        cursor: not-allowed !important;
+        transform: none !important;
+    }
+    
+    /* 安全提示 */
+    .passkey-security-note {
+        margin-top: 16px;
+        padding: 8px 12px;
+        background: var(--bg-tertiary);
+        border-radius: var(--radius-sm);
+        font-size: 1.12rem;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    /* ========== 头部通行密钥按钮样式 ========== */
+    
+    /* 确保头部布局正确 */
+    .user-panel-header.logged-in {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .header-passkey-btn {
+        width: 32px;
+        height: 32px;
+        background: transparent;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: var(--radius-sm);
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        position: relative;
+        flex-shrink: 0;
+    }
+    
+    .header-passkey-btn:hover {
+        background: rgba(0, 0, 0, 0.05);
+        border-color: rgba(0, 0, 0, 0.2);
+        color: var(--text-primary);
+        transform: translateY(-1px);
+    }
+    
+    body.dark-theme .header-passkey-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.15);
+        color: #e0e0e0;
+    }
+
+    body.dark-theme .header-passkey-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+    }
+
+    .header-passkey-btn:active {
+        transform: translateY(0);
+    }
+    
+    /* 头部通行密钥状态指示器 */
+    .header-passkey-status {
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: 2px solid white;
+        opacity: 0;
+        transition: all 0.2s ease;
+    }
+    
+    .header-passkey-status.enabled {
+        background: #10b981;
+        opacity: 1;
+    }
+    
+    .header-passkey-status.disabled {
+        background: #6b7280;
+        opacity: 1;
+    }
+    
+    .header-passkey-status.unsupported {
+        background: #ef4444;
+        opacity: 1;
+    }
+    
+    /* ========== 通行密钥管理弹窗样式 ========== */
+    
+    .passkey-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    
+    .passkey-modal.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .passkey-modal-content {
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        width: 100%;
+        max-width: 420px;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        transform: translateY(20px) scale(0.95);
+        transition: all 0.3s ease;
+    }
+    
+    .passkey-modal.active .passkey-modal-content {
+        transform: translateY(0) scale(1);
+    }
+    
+    /* 弹窗头部 */
+    .passkey-modal-header {
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .passkey-modal-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .passkey-modal-close {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: var(--text-secondary);
+        font-size: 13px;
+    }
+    
+    .passkey-modal-close:hover {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+    }
+    
+    /* 弹窗内容 */
+    .passkey-modal-body {
+        padding: 20px;
+    }
+    
+    /* 不支持通行密钥的提示 */
+    .passkey-unsupported {
+        text-align: center;
+        padding: 30px 20px;
+    }
+    
+    .passkey-unsupported-icon {
+        font-size: 2.5rem;
+        color: var(--text-secondary);
+        margin-bottom: 14px;
+    }
+    
+    .passkey-unsupported-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+    
+    .passkey-unsupported-desc {
+        color: var(--text-secondary);
+        line-height: 1.4;
+        font-size: 13px;
+    }
+    
+    /* 通行密钥状态卡片 */
+    .passkey-status-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 14px;
+        margin-bottom: 16px;
+    }
+    
+    .passkey-status-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+    }
+    
+    .passkey-status-indicator {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    
+    .passkey-status-indicator.enabled {
+        background: #10b981;
+    }
+    
+    .passkey-status-indicator.disabled {
+        background: #6b7280;
+    }
+    
+    .passkey-status-text {
+        font-weight: 500;
+        color: var(--text-primary);
+        font-size: 14px;
+    }
+    
+    .passkey-status-desc {
+        color: var(--text-secondary);
+        font-size: 12px;
+        line-height: 1.4;
+    }
+    
+    /* 通行密钥详情 */
+    .passkey-details {
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        padding: 14px;
+        margin-bottom: 16px;
+    }
+    
+    .passkey-detail-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .passkey-detail-item:last-child {
+        border-bottom: none;
+    }
+    
+    .passkey-detail-label {
+        color: var(--text-secondary);
+        font-size: 12px;
+    }
+    
+    .passkey-detail-value {
+        color: var(--text-primary);
+        font-size: 12px;
+        font-family: 'SFMono-Regular', Consolas, monospace;
+    }
+    
+    /* 设置提示 */
+    .passkey-setup-guide {
+        text-align: center;
+        padding: 24px 16px;
+    }
+    
+    .passkey-setup-icon {
+        font-size: 2.2rem;
+        color: var(--primary-color);
+        margin-bottom: 12px;
+    }
+    
+    .passkey-setup-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 6px;
+    }
+    
+    .passkey-setup-desc {
+        color: var(--text-secondary);
+        line-height: 1.4;
+        font-size: 13px;
+        margin-bottom: 20px;
+    }
+    
+    /* 操作按钮 */
+    .passkey-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .passkey-action-btn {
+        flex: 1;
+        padding: 10px 14px;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+    
+    .passkey-action-btn:hover {
+        background: var(--bg-tertiary);
+        transform: translateY(-1px);
+    }
+    
+    .passkey-action-btn.primary {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+    
+    .passkey-action-btn.primary:hover {
+        background: var(--primary-hover);
+    }
+    
+    .passkey-action-btn.danger {
+        color: #ef4444;
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+    
+    .passkey-action-btn.danger:hover {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: #ef4444;
+    }
+    
+    .passkey-action-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    /* ========== 移动端适配 ========== */
+    @media (max-width: 768px) {
+        /* 头部按钮移动端适配 */
+        .header-passkey-btn {
+            width: 28px;
+            height: 28px;
+            font-size: 12px;
+        }
+        
+        .header-passkey-status {
+            width: 8px;
+            height: 8px;
+            border-width: 1.5px;
+        }
+        
+        /* 弹窗移动端适配 */
+        .passkey-modal {
+            padding: 12px;
+        }
+        
+        .passkey-modal-content {
+            max-height: 85vh;
+            max-width: 360px;
+        }
+        
+        .passkey-modal-header {
+            padding: 14px 16px;
+        }
+        
+        .passkey-modal-title {
+            font-size: 15px;
+        }
+        
+        .passkey-modal-body {
+            padding: 16px;
+        }
+        
+        /* 登录界面移动端适配 */
+        .passkey-login-section {
+            padding: 20px 16px !important;
+        }
+        
+        .passkey-icon-main {
+            font-size: 2.5rem !important;
+        }
+        
+        /* 弹窗内容移动端适配 */
+        .passkey-actions {
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .passkey-setup-guide {
+            padding: 20px 12px;
+        }
+        
+        .passkey-status-card {
+            padding: 12px;
+            margin-bottom: 14px;
+        }
+        
+        .passkey-details {
+            padding: 12px;
+            margin-bottom: 14px;
+        }
+    }
+    
+    /* ========== 深色主题适配 ========== */
+    body.dark-theme .passkey-modal {
+        background: rgba(0, 0, 0, 0.7);
+    }
+    
+    body.dark-theme .passkey-modal-content {
+        background: var(--dark-bg-primary, #1a1a1a);
+        border-color: var(--dark-border, #333);
+    }
+    
+    body.dark-theme .passkey-modal-close {
+        background: var(--dark-bg-secondary, #2a2a2a);
+        border-color: var(--dark-border, #333);
+        color: var(--dark-text-secondary, #aaa);
+    }
+    
+    body.dark-theme .passkey-modal-close:hover {
+        background: var(--dark-bg-tertiary, #333);
+        color: var(--dark-text-primary, #e0e0e0);
+    }
+    
+    body.dark-theme .passkey-status-card {
+        background: var(--dark-bg-secondary, #2a2a2a);
+        border-color: var(--dark-border, #333);
+    }
+    
+    body.dark-theme .passkey-details {
+        background: var(--dark-bg-primary, #1a1a1a);
+        border-color: var(--dark-border, #333);
+    }
+    
+    body.dark-theme .passkey-detail-item {
+        border-bottom-color: var(--dark-border, #333);
+    }
+    
+    body.dark-theme .passkey-action-btn {
+        background: var(--dark-bg-secondary, #2a2a2a);
+        border-color: var(--dark-border, #333);
+        color: var(--dark-text-primary, #e0e0e0);
+    }
+    
+    body.dark-theme .passkey-action-btn:hover {
+        background: var(--dark-bg-tertiary, #333);
+    }
+    
+    body.dark-theme .passkey-login-section {
+        background: var(--dark-bg-secondary, #2a2a2a);
+        border-color: var(--dark-border, #333);
+    }
+    
+    body.dark-theme .passkey-security-note {
+        background: var(--dark-bg-tertiary, #333);
+        color: var(--dark-text-secondary, #aaa);
+    }
+    
+    body.dark-theme .header-passkey-status {
+        border-color: var(--dark-bg-primary, #1a1a1a);
+    }
+    
+    /* ========== 无障碍和焦点样式 ========== */
+    .passkey-login-btn:focus,
+    .passkey-action-btn:focus,
+    .header-passkey-btn:focus,
+    .passkey-modal-close:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(190, 114, 127, 0.3);
+    }
+    
+    /* ========== 动画优化 ========== */
+    @media (prefers-reduced-motion: reduce) {
+        .passkey-modal,
+        .passkey-modal-content,
+        .header-passkey-btn,
+        .passkey-action-btn {
+            transition: none;
+        }
+        
+        .header-passkey-btn:hover {
+            transform: none;
+        }
+        
+        .passkey-action-btn:hover {
+            transform: none;
+        }
+    }
+    /* Edited 25.06.24 */
+    
+    /* 第三方登录样式 */
+    .oauth-section {
+        margin-top: 20px;
+        position: relative;
+    }
+    
+    .oauth-divider {
+        display: flex;
+        align-items: center;
+        margin: 20px 0 16px 0;
+        color: var(--text-secondary);
+        font-size: 13px;
+    }
+    
+    .oauth-divider::before,
+    .oauth-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+    }
+    
+    .oauth-divider span {
+        padding: 0 16px;
+        background: var(--bg-primary);
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+    
+    .oauth-btn {
+        width: 100%;
+        padding: 14px 18px;
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-md);
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .oauth-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        transition: left 0.5s ease;
+    }
+    
+    .oauth-btn:hover::before {
+        left: 100%;
+    }
+    
+    .oauth-btn:hover {
+        transform: translateY(-2px);
+        border-color: #00d4aa;
+        background: linear-gradient(135deg, rgba(0, 212, 170, 0.05), rgba(0, 212, 170, 0.1));
+        box-shadow: 
+            0 8px 25px rgba(0, 212, 170, 0.15),
+            0 0 0 1px rgba(0, 212, 170, 0.1);
+        color: #00d4aa;
+    }
+    
+    .oauth-btn:active {
+        transform: translateY(-1px);
+    }
+    
+    .oauth-btn-icon {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        padding: 2px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .oauth-btn:hover .oauth-btn-icon {
+        transform: scale(1.05);
+        box-shadow: 0 4px 8px rgba(0, 212, 170, 0.2);
+    }
+    
+    .oauth-btn-icon img {
+        width: 16px;
+        height: 16px;
+        border-radius: 2px;
+    }
+    
+    .oauth-btn-text {
+        font-weight: 500;
+        letter-spacing: 0.3px;
+    }
+    
+    /* 加载状态 */
+    .oauth-btn.loading {
+        pointer-events: none;
+        opacity: 0.7;
+    }
+    
+    .oauth-btn.loading .oauth-btn-text {
+        opacity: 0.6;
+    }
+    
+    .oauth-btn.loading::after {
+        content: '';
+        position: absolute;
+        right: 18px;
+        width: 16px;
+        height: 16px;
+        border: 2px solid transparent;
+        border-top: 2px solid currentColor;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    /* 深色主题适配 */
+    body.dark-theme .oauth-btn {
+        background: var(--dark-bg-secondary, #2a2a2a);
+        border-color: var(--dark-border, #333);
+        color: var(--dark-text-primary, #e0e0e0);
+    }
+    
+    body.dark-theme .oauth-btn:hover {
+        background: linear-gradient(135deg, rgba(0, 212, 170, 0.08), rgba(0, 212, 170, 0.12));
+        border-color: #00d4aa;
+        color: #00d4aa;
+    }
+    
+    body.dark-theme .oauth-divider span {
+        background: var(--dark-bg-primary, #1a1a1a);
+    }
+    
+    /* 响应式设计 */
+    @media (max-width: 480px) {
+        .oauth-btn {
+            padding: 12px 16px;
+            font-size: 13px;
+        }
+        
+        .oauth-btn-icon {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .oauth-btn-icon img {
+            width: 14px;
+            height: 14px;
+        }
+        
+        .oauth-divider {
+            margin: 16px 0 12px 0;
+            font-size: 12px;
+        }
+        
+        .oauth-divider span {
+            padding: 0 12px;
+        }
+    }
+    
+    /* Edited 25.06.22 */
+    
+    /* 桌面端使用情况卡片 */
+    .usage-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 14px 16px;
+        margin-bottom: 10px;
+        transition: all 0.2s ease;
+        opacity: 0;
+        animation: slideInCard 0.3s ease forwards;
+    }
+    
+    @keyframes slideInCard {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .usage-card:hover {
+        background: var(--bg-tertiary);
+        border-color: var(--primary-color);
+        transform: translateY(-1px);
+    }
+    
+    .usage-card .model-name {
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+        transition: color 0.2s ease;
+    }
+    
+    .usage-stats {
+        display: flex;
+        gap: 16px;
+    }
+    
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+        transition: all 0.2s ease;
+    }
+    
+    .stat-label {
+        font-size: 11px;
+        color: var(--text-secondary);
+        margin-bottom: 2px;
+        letter-spacing: 0.5px;
+    }
+    
+    .stat-value {
+        font-size: 12px;
+        font-weight: 500;
+        font-family: 'SFMono-Regular', Consolas, monospace;
+        padding: 3px 6px;
+        border-radius: 4px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        transition: all 0.2s ease;
+    }
+    
+    .stat-value.limited {
+        color: #f59e0b;
+        background: rgba(245, 158, 11, 0.1);
+        border-color: rgba(245, 158, 11, 0.2);
+    }
+    
+    .stat-value.exceeded {
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.2);
+    }
+    
+    .stat-value.unlimited {
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.1);
+        border-color: rgba(16, 185, 129, 0.2);
+    }/* 验证码样式 */
+    #captcha-container {
+        user-select: none;
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    #captcha-container:hover {
+        border-color: var(--primary-color);
+        background: var(--bg-secondary);
+    }
+    
+    #captcha-container:active {
+        transform: scale(0.98);
+    }
+    
+    #captcha-display {
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        transform: rotate(-5deg);
+        transition: color 0.3s ease;
+    }
+    
+    body.dark-theme #captcha-container {
+        background: var(--dark-bg-tertiary, #333);
+        border-color: var(--dark-border, #444);
+        color: var(--dark-text-primary, #e0e0e0);
+    }
+    
+    /* 验证码输入框样式 */
+    #auth-captcha {
+        padding-left: 40px;
+    }
+    
+    /* 用户按钮样式 */
+    .user-btn {
+        position: relative;
+        background: var(--primary-color);
+        color: white !important;
+        border: 2px solid transparent;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 8px rgba(190, 114, 127, 0.2);
+    }
+    
+    .user-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(190, 114, 127, 0.4);
+        background: var(--primary-hover);
+    }
+
+    .user-btn.logged-in {
+        background: #10b981;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+    }
+
+    .user-btn.logged-in:hover {
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        background: #059669;
+    }
+    
+    #user-status-indicator {
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #ef4444;
+        border: 2px solid white;
+        display: none;
+        animation: pulse 2s infinite;
+    }
+    
+    #user-status-indicator.online {
+        background: #10b981;
+        display: block;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+    
+    /* ============================================
+       User Panel - Complete Redesign v2.0
+       Responsive & Modern Design System
+       ============================================ */
+
+    /* Panel Overlay Background */
+    .user-panel-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .user-panel-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Base Panel Styles */
+    .user-panel {
+        position: fixed;
+        background: var(--bg-primary);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid var(--border-color);
+        box-shadow:
+            0 25px 50px -12px rgba(0, 0, 0, 0.15),
+            0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+        z-index: 10000;
+        opacity: 0;
+        visibility: hidden;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transition:
+            opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+            transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+            visibility 0.35s ease;
+    }
+
+    /* Desktop Panel - Floating Card Style */
+    .user-panel.desktop {
+        top: 72px;
+        right: 20px;
+        width: min(920px, calc(100vw - 40px));
+        max-height: calc(100vh - 100px);
+        border-radius: var(--radius-lg);
+        transform: translateY(-16px) scale(0.95);
+        transform-origin: top right;
+    }
+
+    .user-panel.desktop.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0) scale(1);
+    }
+
+    /* Mobile Panel - Full Height Drawer */
+    .user-panel.mobile {
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: min(360px, 90vw);
+        height: 100%;
+        max-height: 100dvh;
+        border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+        border-right: none;
+        transform: translateX(100%);
+        transition:
+            transform 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+            opacity 0.3s ease;
+    }
+
+    .user-panel.mobile.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(0);
+    }
+
+    .user-panel.active {
+        pointer-events: auto;
+    }
+
+    /* ========== Header Section ========== */
+    .user-panel-header {
+        padding: 18px 24px;
+        background: linear-gradient(180deg, var(--bg-secondary) 0%, transparent 100%);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-shrink: 0;
+    }
+
+    .user-panel-header.logged-in {
+        background: linear-gradient(135deg,
+            rgba(190, 114, 127, 0.08) 0%,
+            rgba(190, 114, 127, 0.02) 100%);
+        border-bottom: 1px solid rgba(190, 114, 127, 0.12);
+    }
+
+    /* Close Button for Mobile */
+    .user-panel-close {
+        display: none;
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .user-panel-close:hover {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        border-color: var(--primary-color);
+    }
+
+    .user-panel.mobile .user-panel-close {
+        display: flex;
+    }
+
+    /* User Info Container */
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    /* Avatar Styles */
+    .user-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-md);
+        background: linear-gradient(135deg, var(--primary-color) 0%, #d4949e 100%);
+        box-shadow:
+            0 4px 12px rgba(190, 114, 127, 0.25),
+            0 0 0 2px rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        color: white;
+        flex-shrink: 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .user-avatar.guest-avatar {
+        background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+        color: var(--text-secondary);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .user-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* User Details */
+    .user-details {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .user-details h4 {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+        line-height: 1.3;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .user-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .user-status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        animation: statusPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes statusPulse {
+        0%, 100% { box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); }
+        50% { box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.1); }
+    }
+
+    /* ========== Content Area ========== */
+    .user-panel-content {
+        padding: 20px 24px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        flex: 1;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border-color) transparent;
+    }
+
+    .user-panel-content::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .user-panel-content::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .user-panel-content::-webkit-scrollbar-thumb {
+        background: var(--border-color);
+        border-radius: 3px;
+    }
+
+    .user-panel-content::-webkit-scrollbar-thumb:hover {
+        background: var(--text-secondary);
+    }
+
+    /* Desktop Layout - Two Column */
+    .user-panel-content.desktop-layout {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .desktop-usage-layout {
+        display: grid;
+        grid-template-columns: 1fr 420px;
+        gap: 24px;
+        align-items: start;
+    }
+
+    @media (max-width: 900px) {
+        .desktop-usage-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .usage-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .usage-charts {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .chart-container {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .chart-container h5 {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 0;
+    }
+
+    /* ========== Section Styling ========== */
+    .panel-section {
+        margin-bottom: 24px;
+    }
+
+    .panel-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .section-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--text-secondary);
+        margin-bottom: 12px;
+        padding-left: 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .section-title::before {
+        content: '';
+        width: 3px;
+        height: 12px;
+        background: var(--primary-color);
+        border-radius: 2px;
+    }
+
+    /* ========== Usage Summary Card ========== */
+    .usage-summary {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 6px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .usage-item-compact {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 14px;
+        border-radius: var(--radius-sm);
+        background: transparent;
+        transition: all 0.2s ease;
+    }
+
+    .usage-item-compact:hover {
+        background: var(--bg-tertiary);
+    }
+
+    .usage-model-name {
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 14px;
+    }
+
+    .usage-count-compact {
+        font-family: 'Geist Mono', 'SFMono-Regular', Consolas, monospace;
+        font-size: 12px;
+        padding: 4px 10px;
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        font-weight: 600;
+        color: var(--text-primary);
+        transition: all 0.2s ease;
+    }
+
+    .usage-count-compact.limited {
+        color: #f59e0b;
+        background: rgba(245, 158, 11, 0.1);
+        border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    .usage-count-compact.exceeded {
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .usage-count-compact.unlimited {
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.1);
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    /* ========== Action Buttons ========== */
+    .panel-actions {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .panel-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 14px 16px;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-color);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .panel-btn::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.1) 100%);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .panel-btn:hover {
+        background: var(--bg-tertiary);
+        border-color: var(--primary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .panel-btn:hover::before {
+        opacity: 1;
+    }
+
+    .panel-btn:active {
+        transform: translateY(0);
+    }
+
+    .panel-btn i {
+        font-size: 15px;
+    }
+
+    .panel-btn.primary {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #d4949e 100%);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 14px -2px rgba(190, 114, 127, 0.4);
+    }
+
+    .panel-btn.primary:hover {
+        background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary-color) 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px -4px rgba(190, 114, 127, 0.5);
+    }
+
+    .panel-btn.danger {
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.05);
+        border-color: rgba(239, 68, 68, 0.2);
+    }
+
+    .panel-btn.danger:hover {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    /* Full Width Button */
+    .panel-btn.full-width {
+        grid-column: 1 / -1;
+    }
+
+    /* ========== Dark Theme ========== */
+    body.dark-theme .user-panel {
+        background: rgba(26, 26, 26, 0.95);
+        border-color: rgba(255, 255, 255, 0.1);
+        box-shadow:
+            0 25px 50px -12px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+    }
+
+    body.dark-theme .user-panel-overlay {
+        background: rgba(0, 0, 0, 0.6);
+    }
+
+    body.dark-theme .user-panel-header {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
+        border-bottom-color: rgba(255, 255, 255, 0.08);
+    }
+
+    body.dark-theme .user-panel-header.logged-in {
+        background: linear-gradient(135deg,
+            rgba(190, 114, 127, 0.12) 0%,
+            rgba(190, 114, 127, 0.04) 100%);
+        border-bottom-color: rgba(190, 114, 127, 0.15);
+    }
+
+    body.dark-theme .user-panel-close {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    body.dark-theme .user-panel-close:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+    }
+
+    body.dark-theme .user-avatar {
+        box-shadow:
+            0 4px 12px rgba(0, 0, 0, 0.3),
+            0 0 0 2px rgba(255, 255, 255, 0.1);
+    }
+
+    body.dark-theme .user-avatar.guest-avatar {
+        background: linear-gradient(135deg, #333 0%, #2a2a2a 100%);
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    body.dark-theme .user-details h4 {
+        color: #fff;
+    }
+
+    body.dark-theme .user-status {
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    body.dark-theme .section-title {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    body.dark-theme .usage-summary {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    body.dark-theme .usage-item-compact:hover {
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    body.dark-theme .usage-model-name {
+        color: #fff;
+    }
+
+    body.dark-theme .usage-count-compact {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    body.dark-theme .chart-container {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    body.dark-theme .chart-container h5 {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    body.dark-theme .panel-btn {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: #fff;
+    }
+
+    body.dark-theme .panel-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--primary-color);
+    }
+
+    body.dark-theme .panel-btn.primary {
+        background: linear-gradient(135deg, var(--primary-color) 0%, #d4949e 100%);
+        color: #fff;
+    }
+
+    body.dark-theme .panel-btn.primary:hover {
+        background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary-color) 100%);
+    }
+
+    body.dark-theme .panel-btn.danger {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.25);
+    }
+
+    body.dark-theme .panel-btn.danger:hover {
+        background: rgba(239, 68, 68, 0.15);
+    }
+
+    /* ========== Responsive Design ========== */
+
+    /* Tablet & Small Desktop */
+    @media (max-width: 1024px) {
+        .user-panel.desktop {
+            width: min(720px, calc(100vw - 40px));
+        }
+
+        .desktop-usage-layout {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .usage-charts {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    /* Mobile Devices */
+    @media (max-width: 768px) {
+        .user-panel.desktop,
+        .user-panel.mobile,
+        .user-panel {
+            top: 0;
+            bottom: 0;
+            right: 0;
+            left: auto;
+            width: min(360px, 90vw) !important;
+            height: 100%;
+            max-height: 100dvh;
+            border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+            border-right: none;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+
+        .user-panel.active {
+            transform: translateX(0);
+        }
+
+        .user-panel-header {
+            padding: 16px 20px;
+        }
+
+        .user-avatar {
+            width: 42px;
+            height: 42px;
+            font-size: 18px;
+        }
+
+        .user-details h4 {
+            font-size: 15px;
+        }
+
+        .user-status {
+            font-size: 12px;
+        }
+
+        .user-panel-content {
+            padding: 16px 20px;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
+        }
+
+        .section-title {
+            font-size: 10px;
+        }
+
+        .usage-model-name {
+            font-size: 13px;
+        }
+
+        .usage-count-compact {
+            font-size: 11px;
+            padding: 3px 8px;
+        }
+
+        .panel-actions {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .panel-btn {
+            padding: 12px 14px;
+            font-size: 13px;
+        }
+
+        .usage-charts {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Small Mobile */
+    @media (max-width: 380px) {
+        .user-panel.desktop,
+        .user-panel.mobile,
+        .user-panel {
+            width: 100vw !important;
+            border-radius: 0;
+        }
+
+        .user-panel-header {
+            padding: 14px 16px;
+        }
+
+        .user-panel-content {
+            padding: 14px 16px;
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+        }
+    }
+
+    /* Safe Area Support for iOS */
+    @supports (padding: env(safe-area-inset-bottom)) {
+        .user-panel.mobile .user-panel-content,
+        @media (max-width: 768px) {
+            .user-panel-content {
+                padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            }
+        }
+    }
+
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+        .user-panel,
+        .user-panel-overlay,
+        .panel-btn,
+        .usage-item-compact {
+            transition: none;
+        }
+
+        .user-status-dot {
+            animation: none;
+        }
+    }
+
+    /* High Contrast Mode */
+    @media (prefers-contrast: high) {
+        .user-panel {
+            border-width: 2px;
+        }
+
+        .panel-btn {
+            border-width: 2px;
+        }
+    }
+    
+    /* 登录模态框样式 */
+    .auth-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10001;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    
+    .auth-modal.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .auth-content {
+        background: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 18px 22px;
+        max-width: 420px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 
+            0 20px 25px -5px rgba(0, 0, 0, 0.1),
+            0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        transform: translateY(20px) scale(0.95);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+    }
+    
+    .auth-content.detailed-stats {
+        max-width: 480px;
+    }
+    
+    .auth-content::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--primary-color);
+    }
+    
+    .auth-modal.active .auth-content {
+        transform: translateY(0) scale(1);
+    }
+    
+    .auth-close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        font-size: 11px;
+        color: var(--text-secondary);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+    }
+    
+    .auth-close:hover {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        transform: rotate(90deg);
+    }
+    
+    .auth-header {
+        text-align: center;
+        margin-bottom: 16px;
+    }
+    
+    .auth-logo {
+        width: 50px;
+        height: 50px;
+        margin: 0 auto 12px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        color: white;
+    }
+    
+    .auth-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 6px;
+    }
+    
+    .auth-subtitle {
+        color: var(--text-secondary);
+        font-size: 15px;
+        line-height: 1.4;
+    }
+    
+    .auth-tabs {
+        display: flex;
+        margin-bottom: 16px;
+        background: var(--bg-secondary);
+        border-radius: var(--radius-md);
+        padding: 3px;
+    }
+    
+    .auth-tab {
+        flex: 1;
+        padding: 10px 18px;
+        background: transparent;
+        border: none;
+        border-radius: calc(var(--radius-md) - 3px);
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .auth-tab.active {
+        background: var(--bg-primary);
+        color: var(--primary-color);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .auth-form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .auth-form-group {
+        position: relative;
+    }
+    
+    .auth-input {
+        width: 100%;
+        padding: 14px 18px 14px 44px;
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-md);
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        font-size: 15px;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+    
+    .auth-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(190, 114, 127, 0.1);
+        background: var(--bg-primary);
+    }
+    
+    .auth-input-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+        font-size: 14px;
+    }
+    
+    .auth-input:focus + .auth-input-icon {
+        color: var(--primary-color);
+    }
+    
+    .auth-submit {
+        padding: 14px;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        margin-top: 8px;
+    }
+    
+    .auth-submit:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(190, 114, 127, 0.4);
+    }
+    
+    .auth-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .auth-loading {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .auth-loading-spinner {
+        width: 12px;
+        height: 12px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top: 2px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .auth-message {
+        padding: 12px 16px;
+        border-radius: var(--radius-md);
+        margin-bottom: 12px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .auth-message.success {
+        background: rgba(16, 185, 129, 1);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        color: #FFFFFF;
+    }
+    
+    .auth-message.error {
+        background: rgba(239, 68, 68, 1);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        color: #FFFFFF;
+    }
+    
+    /* 详细统计界面样式 */
+    #detailed-usage-content {
+        font-size: 14px;
+    }
+    
+    #detailed-usage-content .usage-model-name {
+        font-size: 15px;
+        font-weight: 500;
+    }
+    
+    #detailed-usage-content .usage-count {
+        font-size: 13px;
+    }
+    
+    /* 修改密码界面样式 */
+    #change-password-message .auth-message {
+        font-size: 14px;
+        padding: 12px 16px;
+    }
+    
+    /* 全局提示消息样式 */
+    #global-message-container .auth-message {
+        font-size: 14px;
+        padding: 12px 16px;
+        z-index: 10003;
+    }
+    
+    /* 深色主题适配 */
+    body.dark-theme .user-panel {
+        /* Managed in the main user-panel block */
+    }
+
+    
+    body.dark-theme .auth-content {
+        background: var(--dark-bg-primary, #1a1a1a);
+        border-color: var(--dark-border, #333);
+    }
+    
+    body.dark-theme .auth-input {
+        background: var(--dark-bg-secondary, #2a2a2a);
+        border-color: var(--dark-border, #333);
+        color: var(--dark-text-primary, #e0e0e0);
+    }
+    
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+        .user-panel.desktop {
+            /* Responsive overrides */
+        }
+        
+        .auth-content {
+            padding: 16px 18px;
+            margin: 0;
+            width: 100%;
+            max-width: 360px;
+            max-height: 85vh;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-modal {
+            padding: 15px;
+        }
+        
+        
+        .auth-title {
+            font-size: 16px;
+        }
+        
+        .auth-subtitle {
+            font-size: 13px;
+        }
+        
+        .auth-input {
+            padding: 11px 15px 11px 38px;
+            font-size: 15px;
+        }
+        
+        .auth-submit {
+            padding: 11px;
+            font-size: 13px;
+        }
+        
+    }
+    
+    @media (max-width: 480px) {
+        .auth-input {
+            font-size: 16px; /* 防止iOS缩放 */
+        }
+        
+        .auth-modal {
+            padding: 10px;
+        }
+        
+        .auth-content {
+            max-width: 320px;
+            padding: 14px 16px;
+            max-height: 80vh;
+        }
+        
+    }

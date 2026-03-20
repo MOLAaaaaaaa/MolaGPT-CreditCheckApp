@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"net/http"
 
 	"credit-check-app/internal/config"
@@ -10,14 +11,8 @@ import (
 	"credit-check-app/internal/ollama"
 )
 
-// 前端文件由 main.go 传入，不在此处 embed
-// var frontendFS embed.FS
-
-var frontendDir string = "frontend"
-
-func SetFrontendDir(dir string) {
-	frontendDir = dir
-}
+// FrontendFS 由 main.go 注入的嵌入式前端文件系统
+var FrontendFS fs.FS
 
 func Start(cfg *config.Config) error {
 	mux := http.NewServeMux()
@@ -53,8 +48,12 @@ func Start(cfg *config.Config) error {
 		handleChat(w, r, cfg)
 	})
 
-	// ---- 静态文件（前端） ----
-	mux.Handle("/", http.FileServer(http.Dir(frontendDir)))
+	// ---- 静态文件（从嵌入的前端 FS 读取） ----
+	if FrontendFS != nil {
+		mux.Handle("/", http.FileServer(http.FS(FrontendFS)))
+	} else {
+		mux.Handle("/", http.FileServer(http.Dir("frontend")))
+	}
 
 	addr := fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.Port)
 	return http.ListenAndServe(addr, corsMiddleware(mux))

@@ -1,0 +1,1486 @@
+/* Modern Clean Theme - Radical Avant-Garde Edition (Beta) */
+
+/* =========================================
+   1. Global Resets & Layout Deconstruction
+   ========================================= */
+
+:root {
+    --radius-none: 0;
+    --radius-2xs: 4px;
+    --radius-xs: 10px;
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 20px;
+    --radius-xl: 24px;
+    --radius-xxl: 32px;
+    --radius-pill: 999px;
+    --radius-circle: 50%;
+}
+
+/* App Container - The Canvas */
+.app-container {
+    background-color: #f2f4f7 !important; /* Light gray canvas */
+    gap: 16px !important;
+    padding: 16px !important;
+    height: 100vh !important; /* Ensure full height */
+    box-sizing: border-box !important;
+}
+
+/* Sidebar - The Floating Palette */
+.sidebar {
+    background: var(--bg-secondary) !important; /* 使用纯色背景，不使用透明度 */
+    border-right: none !important;
+    box-shadow: none !important;
+    border-radius: var(--radius-xl) !important;
+    margin-left: 8px !important;
+    height: calc(100vh - 32px) !important; /* Adjust for container padding */
+    /* 默认启用平滑过渡，用于点击按钮时的动画 */
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s ease, background-color 0.3s ease !important;
+    /* 禁用毛玻璃效果 */
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* 桌面端：正常启用动画 */
+@media (min-width: 769px) {
+    .sidebar {
+        width: 280px !important;
+        max-width: 280px !important;
+        min-width: 80px !important;
+    }
+
+    body.sidebar-collapsed .sidebar {
+        width: 80px !important;
+        /* 移除 max-width 限制，防止动画被 clamp 导致丢失 */
+        /* max-width: 80px !important; */
+    }
+}
+
+/* 移动端：只允许 transform 做轻量动画 */
+@media (max-width: 768px) {
+    .sidebar {
+        transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    }
+    
+    /* 移动端下 Beta 主题的额外覆盖 */
+    .app-container .sidebar {
+        transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    }
+}
+
+/* 
+   CRITICAL PERFORMANCE FIX:
+   当 body 拥有 .resize-animation-stopper 类时（JS在resize时添加），
+   强制禁用所有动画和过渡。这解决了：
+   1. 拖动窗口时的卡顿（Layout Thrashing）
+   2. 跨越 768px 断点时，sidebar 宽度从 80% -> 280px 的奇怪动画
+   
+   EXCEPTION: 移动端 sidebar transform 必须保留
+*/
+.resize-animation-stopper * {
+    animation: none !important;
+    transition: none !important;
+}
+
+/* 移动端 sidebar 动画优先级最高，覆盖 stopper */
+@media (max-width: 768px) {
+    body.resize-animation-stopper .sidebar,
+    body.resize-animation-stopper .app-container .sidebar {
+        transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    }
+}
+
+/* Chat Main Area - The Floating Stage */
+.chat-main-area {
+    background: #ffffff !important;
+    border-radius: var(--radius-xxl) !important;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.04) !important;
+    margin-right: 8px !important;
+    overflow: hidden !important; /* Clip content to rounded corners */
+    position: relative !important;
+    border: 1px solid rgba(0,0,0,0.03) !important;
+    height: calc(100vh - 32px) !important; /* Adjust for container padding */
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* =========================================
+   2. Sidebar Elements - Minimalist
+   ========================================= */
+
+/* Sidebar Header - Transparent & Bold */
+.sidebar-header {
+    background: transparent !important;
+    border-bottom: none !important;
+    padding: 24px 16px 16px !important;
+}
+
+.sidebar-header::before {
+    display: none !important;
+}
+
+.sidebar-title {
+    color: var(--text-primary) !important;
+    font-size: 24px !important;
+    font-weight: 800 !important; /* Extra Bold */
+    letter-spacing: -0.5px !important;
+    margin-bottom: 20px !important;
+}
+
+/* New Chat Button - Minimalist Pill */
+#clear-conversation {
+    background: var(--primary-color) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: var(--radius-pill) !important; /* Full Pill */
+    padding: 12px 24px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 12px rgba(190, 114, 127, 0.3) !important;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+#clear-conversation:hover {
+    transform: scale(1.05) !important;
+    background: var(--primary-hover) !important;
+}
+
+/* Conversation Items - Floating Blocks */
+.conversation-item {
+    background: transparent !important;
+    border: none !important;
+    border-radius: var(--radius-md) !important;
+    margin-bottom: 8px !important;
+    padding: 12px 16px !important;
+    transition: all 0.2s ease !important;
+}
+
+.conversation-item:hover {
+    background: rgba(0,0,0,0.05) !important;
+    transform: translateX(4px) !important;
+}
+
+.conversation-item.active {
+    background: #ffffff !important;
+    color: var(--primary-color) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.05) !important;
+    border-left: none !important; /* Remove traditional border */
+    font-weight: 600 !important;
+}
+
+/* =========================================
+   3. Main Chat Area - Floating Elements
+   ========================================= */
+
+/* Header - Floating Top Bar */
+.chat-header {
+    background: rgba(255,255,255,0.7) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-bottom: none !important;
+    position: absolute !important;
+    top: 16px !important;
+    left: 16px !important;
+    right: 16px !important;
+    width: auto !important;
+    z-index: 120 !important; /* Above input-container and messages */
+    padding: 12px 24px !important;
+    border-radius: var(--radius-xl) !important; /* Fully rounded floating bar */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05) !important;
+}
+
+.chat-header::before {
+    display: none !important;
+}
+
+/* Input Area - Floating Island */
+.input-container {
+    position: absolute !important;
+    bottom: 24px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: calc(100% - 48px) !important;
+    max-width: 900px !important;
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-top: none !important;
+    border-radius: var(--radius-xl) !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    padding: 12px !important;
+    z-index: 90 !important; /* Below header/theme-popup, above messages */
+}
+
+.input-container::before {
+    display: none !important;
+}
+
+/* Remove inner backgrounds to fix "non-glass" look */
+.input-box,
+.input-wrapper {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.input-box::before {
+    display: none !important;
+}
+
+/* Input Box - Seamless */
+#user-input,
+#chat-gpt-input,
+.input-textarea {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 12px 16px !important;
+    font-size: 16px !important;
+    resize: none !important; /* Prevent resize breaking layout */
+}
+
+#user-input:focus,
+#chat-gpt-input:focus,
+.input-textarea:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Send & Stop Buttons - Rounded Square */
+#send-btn,
+#send-question,
+.send-btn,
+#stop-button,
+.stop-btn {
+    border-radius: var(--radius-sm) !important; /* Match input-container (24px) - padding (12px) */
+    width: 42px !important;
+    height: 42px !important;
+    padding: 0 !important;
+    display: flex; /* Removed !important to allow JS toggling */
+    align-items: center !important;
+    justify-content: center !important;
+    background: var(--primary-color) !important;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    margin-left: 8px !important;
+}
+
+#send-btn:hover,
+#send-question:hover,
+.send-btn:hover {
+    transform: scale(1.1) !important; /* Removed rotate(-10deg) */
+}
+
+/* Messages Container - Adjust for floating elements */
+.messages-container {
+    padding-top: 120px !important; /* Increased space for header */
+    padding-bottom: 80px !important; /* Base padding, JS will override dynamically */
+    margin-top: 0 !important; /* Reset negative margin from base theme */
+    height: 100% !important;
+    overflow-y: auto !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(190, 114, 127, 0.65) transparent !important;
+}
+
+.messages-container::-webkit-scrollbar {
+    width: 10px !important;
+    background-color: transparent;
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, rgba(190, 114, 127, 0.25), rgba(190, 114, 127, 0.65));
+    border-radius: 6px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, rgba(190, 114, 127, 0.35), rgba(190, 114, 127, 0.85));
+}
+
+/* =========================================
+   4. Messages - Avant-Garde Shapes
+   ========================================= */
+
+/* Message Avatars - Squircle */
+.message-avatar {
+    border-radius: var(--radius-sm) !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Message Content - Asymmetric Bubbles */
+.message-content {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 16px 20px !important;
+}
+
+/* User Message - Bold & Sharp */
+.message.user .message-content {
+    background: var(--primary-color) !important;
+    color: white !important;
+    border-radius: var(--radius-lg) var(--radius-2xs) var(--radius-lg) var(--radius-lg) !important; /* Sharp bottom-right */
+    font-weight: 500 !important;
+}
+
+/* Assistant Message - Full width, no bubble */
+.message.assistant .message-content {
+    background: transparent !important;
+    color: var(--text-primary) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+/* =========================================
+   5. Dark Theme Overrides - Deep Space
+   ========================================= */
+
+body.dark-theme .app-container {
+    background: #000000 !important; /* Pure Black Canvas */
+}
+
+body.dark-theme .sidebar {
+    background: var(--bg-secondary) !important; /* 使用纯色背景 */
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+body.dark-theme .chat-main-area {
+    background: #121212 !important; /* Dark Gray Stage */
+    border: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+body.dark-theme .sidebar-title {
+    color: #ffffff !important;
+}
+
+body.dark-theme .conversation-item:hover {
+    background: rgba(255,255,255,0.1) !important;
+}
+
+body.dark-theme .conversation-item.active {
+    background: #1e1e1e !important;
+    color: var(--primary-color) !important;
+}
+
+body.dark-theme .input-container {
+    background: rgba(30, 30, 30, 0.7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+}
+
+body.dark-theme #user-input,
+body.dark-theme #chat-gpt-input,
+body.dark-theme .input-textarea {
+    color: white !important;
+}
+
+body.dark-theme .message.assistant .message-content {
+    background: transparent !important;
+}
+
+/* =========================================
+   6. Mobile Responsiveness (Fallback)
+   ========================================= */
+
+@media (max-width: 768px) {
+    .app-container {
+        padding: 0 !important;
+        gap: 0 !important;
+    }
+    
+    .sidebar {
+        margin: 0 !important;
+        border-radius: var(--radius-none) !important;
+        background: var(--bg-secondary) !important; /* Revert to solid for mobile drawer */
+        height: 100% !important;
+        /* 确保移动端侧边栏始终有动画 - 提升优先级 */
+        transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    }
+    
+    .chat-main-area {
+        margin: 0 !important;
+        border-radius: var(--radius-none) !important;
+        border: none !important;
+        height: 100% !important;
+    }
+    
+    .chat-header {
+        border-radius: var(--radius-none) !important;
+        position: fixed !important;
+        width: 100% !important;
+    }
+    
+    .input-container {
+        width: calc(100% - 24px) !important; /* 减少左右边距 */
+        bottom: 12px !important; /* 减少底部间距 */
+        border-radius: var(--radius-md) !important; /* 减小圆角 */
+        position: fixed !important;
+        padding: 8px !important; /* 减少内边距 */
+    }
+    
+    /* 移动端紧凑型输入框样式 */
+    .input-container .input-box {
+        padding: 6px !important; /* 减少内部组件间距 */
+    }
+    
+    .input-container .input-textarea {
+        font-size: 15px !important; /* 略微减小字体 */
+        padding: 8px 10px !important; /* 紧凑内边距 */
+        min-height: 36px !important; /* 减小最小高度 */
+    }
+    
+    .input-container .input-btn,
+    .input-container .send-btn,
+    .input-container .stop-btn {
+        width: 36px !important; /* 减小按钮尺寸 */
+        height: 36px !important;
+        font-size: 16px !important;
+    }
+    
+    .input-container .thinking-btn {
+        padding: 6px 10px !important; /* 紧凑按钮内边距 */
+        font-size: 13px !important;
+        height: 32px !important;
+    }
+    
+    .messages-container {
+        padding-top: 64px !important; /* 减少顶部内边距 */
+        padding-bottom: 80px !important; /* 减少底部内边距以匹配紧凑输入框 */
+    }
+}
+
+/* =========================================
+   7. Sidebar Collapse & Glassmorphism Updates
+   ========================================= */
+
+/* Ensure App Container is Flex for Sidebar Resizing */
+.app-container {
+    display: flex !important;
+    flex-direction: row !important;
+}
+
+/* Sidebar Toggle Button */
+.sidebar-toggle-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: var(--radius-circle);
+    transition: all 0.2s ease;
+    display: flex !important; /* Force show in Beta theme */
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+}
+
+.sidebar-toggle-btn:hover {
+    background: rgba(0,0,0,0.05);
+    color: var(--primary-color);
+}
+
+/* Collapsed Sidebar State */
+body.sidebar-collapsed .sidebar {
+    width: 80px !important;
+    min-width: 80px !important;
+    padding: 0 !important;
+    overflow: visible !important;
+}
+
+body.sidebar-collapsed .sidebar-title,
+body.sidebar-collapsed .sidebar-header-actions {
+    display: none !important;
+}
+
+/* Center icons in collapsed state */
+body.sidebar-collapsed .sidebar-header {
+    padding: 24px 0 !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+body.sidebar-collapsed .sidebar-title-container {
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 0 !important;
+    width: 100%;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* New Chat Button - Icon Only */
+body.sidebar-collapsed #clear-conversation {
+    padding: 0 !important;
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: var(--radius-circle) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 16px auto !important;
+    font-size: 0 !important; /* Hide text */
+}
+
+body.sidebar-collapsed #clear-conversation i {
+    font-size: 18px !important;
+    margin: 0 !important;
+}
+
+/* Conversation Items - Icon Only */
+body.sidebar-collapsed .conversation-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 !important;
+    width: 48px !important;
+    height: 48px !important;
+    margin: 8px auto !important;
+    border-radius: var(--radius-circle) !important;
+}
+
+body.sidebar-collapsed .conversation-item .conversation-title,
+body.sidebar-collapsed .conversation-item .fa-trash,
+body.sidebar-collapsed .conversation-item .fa-edit {
+    display: none !important;
+}
+
+body.sidebar-collapsed .conversation-item i:first-child {
+    margin: 0 !important;
+    font-size: 18px !important;
+}
+
+/* Main Area Expansion */
+.chat-main-area {
+    flex-grow: 1 !important;
+    transition: all 0.3s ease !important;
+}
+
+.sidebar {
+    transition: width 0.3s ease, margin 0.3s ease !important;
+}
+
+/* Glassmorphism for Input Container */
+.input-container {
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Dark Mode Glassmorphism */
+body.dark-theme .input-container {
+    background: rgba(30, 30, 30, 0.7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* =========================================
+   8. Fixes for Centered Layout & Sidebar Visibility
+   ========================================= */
+
+/* 1. Input Container Positioning - Centered Mode */
+.centered-layout-mode .input-container {
+    position: absolute !important;
+    top: 30vh !important;
+    bottom: auto !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: min(90%, 800px) !important;
+    z-index: 100 !important;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+/* 2. Trending Topics Positioning - Centered Mode */
+.centered-layout-mode .trending-topics-container {
+    position: absolute !important;
+    top: calc(30vh + 160px) !important; /* Input top + height + gap */
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    bottom: auto !important;
+    margin: 0 !important;
+    display: block !important;
+    width: min(90%, 1000px) !important;
+    max-height: calc(70vh - 180px) !important;
+    z-index: 90 !important;
+    background: transparent !important;
+}
+
+/* 3. Welcome Header Positioning - Centered Mode */
+.centered-layout-mode .centered-welcome-header {
+    position: absolute !important;
+    top: 20vh !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    margin: 0 !important;
+    width: 100% !important;
+    text-align: center !important;
+    z-index: 90 !important;
+}
+
+/* 4. Sidebar Header Buttons Visibility Fix */
+.sidebar-header-actions .batch-manage-btn,
+.sidebar-secondary-actions .secondary-btn {
+    background: rgba(255,255,255,0.8) !important; /* More opaque */
+    border: 1px solid rgba(0,0,0,0.1) !important;
+    color: var(--text-primary) !important;
+    backdrop-filter: blur(4px) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 8px 12px !important;
+    transition: all 0.2s ease !important;
+}
+
+.sidebar-header-actions .batch-manage-btn:hover,
+.sidebar-secondary-actions .secondary-btn:hover {
+    background: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Dark Mode Sidebar Buttons */
+body.dark-theme .sidebar-header-actions .batch-manage-btn,
+body.dark-theme .sidebar-secondary-actions .secondary-btn {
+    background: rgba(30,30,30,0.8) !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    color: #ffffff !important;
+}
+
+body.dark-theme .sidebar-header-actions .batch-manage-btn:hover,
+body.dark-theme .sidebar-secondary-actions .secondary-btn:hover {
+    background: rgba(255,255,255,0.2) !important;
+}
+
+/* Sidebar Toggle Button Visibility */
+.sidebar-toggle-btn {
+    background: rgba(0,0,0,0.05) !important;
+    color: var(--text-primary) !important;
+}
+
+body.dark-theme .sidebar-toggle-btn {
+    background: rgba(255,255,255,0.1) !important;
+    color: #ffffff !important;
+}
+
+/* =========================================
+   9. Enhanced Sidebar Collapse Handling
+   ========================================= */
+
+/* Hide secondary elements when collapsed */
+body.sidebar-collapsed .sidebar-secondary-actions,
+body.sidebar-collapsed .sidebar-footer,
+body.sidebar-collapsed .batch-manage-btn,
+body.sidebar-collapsed #search-panel,
+body.sidebar-collapsed #batch-actions-panel {
+    display: none !important;
+}
+
+/* Adjust header actions layout for collapsed state */
+body.sidebar-collapsed .sidebar-header-actions {
+    display: flex !important;
+    justify-content: center !important;
+    width: 100% !important;
+    margin-top: 8px !important;
+}
+
+/* Ensure toggle button is centered and visible */
+body.sidebar-collapsed .sidebar-toggle-btn {
+    margin: 0 auto !important;
+    width: 40px !important;
+    height: 40px !important;
+    background: transparent !important;
+}
+
+body.sidebar-collapsed .sidebar-toggle-btn:hover {
+    background: rgba(0,0,0,0.05) !important;
+}
+
+/* Fix New Chat Button in Collapsed Mode */
+body.sidebar-collapsed #clear-conversation {
+    width: 48px !important;
+    height: 48px !important;
+    padding: 0 !important;
+    border-radius: var(--radius-circle) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 4px 12px rgba(190, 114, 127, 0.4) !important;
+}
+
+body.sidebar-collapsed #clear-conversation span {
+    display: none !important;
+}
+
+body.sidebar-collapsed #clear-conversation i {
+    margin: 0 !important;
+    font-size: 20px !important;
+}
+
+/* =========================================
+   10. Input Footer Transparency Fix
+   ========================================= */
+
+.input-footer {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: var(--text-secondary) !important;
+    opacity: 0.7 !important;
+    font-size: 12px !important;
+    margin-top: 8px !important;
+    text-align: center !important;
+}
+
+/* Ensure centered footer is also transparent if used */
+.centered-footer {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* =========================================
+   11. Desktop Header Redesign & Mobile Fixes
+   ========================================= */
+
+/* Desktop Header Redesign (min-width: 769px) */
+@media (min-width: 769px) {
+    .chat-header {
+        background: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        box-shadow: none !important;
+        border: none !important;
+        justify-content: flex-start !important; /* Align items to start */
+        gap: 16px !important;
+    }
+
+    /* Move Model Selector to Left (next to logo) */
+    .model-selector {
+        order: 2 !important; /* Place after logo (order 1) */
+        margin-left: 0 !important;
+    }
+
+    .header-left {
+        order: 1 !important;
+    }
+
+    /* Move Actions to Right */
+    .header-actions {
+        order: 3 !important;
+        margin-left: auto !important; /* Push to far right */
+    }
+
+    /* Weaken Glassmorphism on Input */
+    .input-container {
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        background: rgba(255, 255, 255, 0.6) !important;
+    }
+    
+    body.dark-theme .input-container {
+        background: rgba(30, 30, 30, 0.6) !important;
+    }
+}
+
+/* Mobile Viewport Fixes (max-width: 768px) */
+@media (max-width: 768px) {
+    .messages-container {
+        padding-top: 80px !important; /* Adjust for mobile header */
+        padding-bottom: 140px !important; /* Adjust for mobile input */
+    }
+    
+    /* Restore mobile header background */
+    .chat-header {
+        background: rgba(255,255,255,0.8) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        border-radius: var(--radius-none) !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        padding: 12px 16px !important;
+    }
+    
+    body.dark-theme .chat-header {
+        background: rgba(18,18,18,0.8) !important;
+    }
+}
+
+/* =========================================
+   Update: Input Readability & Sidebar Collapse
+   ========================================= */
+
+/* Enhanced Input Readability */
+.input-container {
+    background: rgba(255, 255, 255, 0.9) !important; /* More opaque */
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.8) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08) !important;
+}
+
+body.dark-theme .input-container {
+    background: rgba(30, 30, 30, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Floating Share Button Position */
+.floating-share-btn-container {
+    top: 100px !important;
+    right: 85px !important;
+}
+
+/* Desktop Sidebar Collapse Logic */
+@media (min-width: 769px) {
+    body.sidebar-collapsed .sidebar {
+        width: 68px !important;
+        min-width: 68px !important;
+        padding: 16px 8px !important;
+        transition: width 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+        will-change: width;
+        overflow: hidden !important;
+    }
+
+    /* Hide heavy content immediately */
+    body.sidebar-collapsed .chat-history {
+        display: none !important;
+    }
+
+    /* Hide text elements */
+    body.sidebar-collapsed .sidebar-title,
+    body.sidebar-collapsed .sidebar-header-actions,
+    body.sidebar-collapsed .sidebar-footer,
+    body.sidebar-collapsed .batch-manage-btn,
+    body.sidebar-collapsed #clear-conversation {
+        display: none !important;
+    }
+
+    /* Adjust Header for Icon Mode */
+    body.sidebar-collapsed .sidebar-header {
+        padding: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
+
+    body.sidebar-collapsed .sidebar-title-container {
+        justify-content: center !important;
+        margin-bottom: 12px !important;
+        width: 100% !important;
+    }
+
+    body.sidebar-collapsed #sidebar-toggle-btn {
+        margin: 0 !important;
+        display: flex !important;
+        width: 36px !important;
+        height: 36px !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+
+    /* Secondary Actions - Icons Only */
+    body.sidebar-collapsed .sidebar-secondary-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        align-items: center !important;
+        width: 100% !important;
+        margin-top: 12px !important;
+    }
+
+    body.sidebar-collapsed .sidebar-secondary-actions .secondary-btn {
+        width: 36px !important;
+        height: 36px !important;
+        padding: 0 !important;
+        justify-content: center !important;
+        border-radius: var(--radius-circle) !important;
+        background: transparent !important;
+    }
+
+    body.sidebar-collapsed .sidebar-secondary-actions .secondary-btn:hover {
+        background: rgba(0,0,0,0.05) !important;
+    }
+
+    body.sidebar-collapsed .sidebar-secondary-actions .secondary-btn span {
+        display: none !important;
+    }
+
+    /* Cloud Sync - Icon Only */
+    body.sidebar-collapsed .cloud-sync-section {
+        margin: auto 0 12px 0 !important; /* Push to bottom */
+        padding: 0 !important;
+        background: transparent !important;
+        border: none !important;
+        display: flex !important;
+        justify-content: center !important;
+        width: 100% !important;
+    }
+
+    body.sidebar-collapsed .cloud-sync-container {
+        padding: 0 !important;
+        display: flex !important;
+        justify-content: center !important;
+        width: 100% !important;
+    }
+
+    body.sidebar-collapsed .cloud-sync-info {
+        margin: 0 !important;
+        width: auto !important;
+    }
+
+    body.sidebar-collapsed .cloud-sync-title {
+        font-size: 0 !important;
+        margin: 0 !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+
+    body.sidebar-collapsed .cloud-sync-title i {
+        font-size: 18px !important;
+        margin: 0 !important;
+        color: var(--text-secondary) !important;
+    }
+
+    body.sidebar-collapsed .cloud-sync-status,
+    body.sidebar-collapsed .cloud-sync-toggle {
+        display: none !important;
+    }
+    
+    /* Ensure Main Area Expands */
+    .chat-main-area {
+        flex: 1 !important;
+        transition: margin 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    }
+    
+    /* Ensure App Container Flex */
+    .app-container {
+        display: flex !important;
+        flex-direction: row !important;
+    }
+}
+
+/* =========================================
+   Fixes: Sidebar Toggle & New Chat Icon
+   ========================================= */
+
+/* Ensure Toggle Button is Visible */
+#sidebar-toggle-btn {
+    display: flex !important;
+    background: transparent !important;
+    border: none !important;
+    color: var(--text-secondary) !important;
+    cursor: pointer !important;
+    padding: 8px !important;
+    border-radius: var(--radius-circle) !important;
+    transition: background 0.2s !important;
+}
+
+#sidebar-toggle-btn:hover {
+    background: rgba(0,0,0,0.05) !important;
+    color: var(--primary-color) !important;
+}
+
+/* Desktop Sidebar Collapse - Keep New Chat Visible */
+@media (min-width: 769px) {
+    body.sidebar-collapsed .sidebar-header-actions {
+        display: flex !important;
+        justify-content: center !important;
+        width: 100% !important;
+        margin-bottom: 12px !important;
+    }
+
+    body.sidebar-collapsed #clear-conversation {
+        display: flex !important;
+        width: 40px !important;
+        height: 40px !important;
+        padding: 0 !important;
+        border-radius: var(--radius-circle) !important;
+        justify-content: center !important;
+        align-items: center !important;
+        font-size: 16px !important;
+        box-shadow: none !important;
+    }
+
+    body.sidebar-collapsed #clear-conversation span {
+        display: none !important;
+    }
+    
+    body.sidebar-collapsed #clear-conversation i {
+        margin: 0 !important;
+    }
+    
+    /* Ensure toggle button is centered in collapsed mode */
+    body.sidebar-collapsed #sidebar-toggle-btn {
+        margin: 0 auto 12px auto !important;
+    }
+}
+
+/* =========================================
+   Mobile Optimization & Desktop Collapsed Refinements
+   ========================================= */
+
+/* Mobile Sidebar - Completely Hidden by Default */
+@media (max-width: 768px) {
+    .sidebar {
+        /* Already has transition defined in the mobile-specific media query above */
+        transform: translateX(-100%) !important;
+        display: block !important; /* Ensure it's block but off-screen */
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        z-index: 1000 !important;
+        width: 80% !important;
+        max-width: 320px !important;
+        box-shadow: 0 0 50px rgba(0,0,0,0) !important;
+    }
+
+    /* When active (handled by JS adding a class to body or sidebar) */
+    body.sidebar-open .sidebar {
+        transform: translateX(0) !important;
+    }
+    
+    /* Ensure overlay works */
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+        backdrop-filter: blur(4px);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    body.sidebar-open .sidebar-overlay {
+        display: block !important;
+        opacity: 1 !important;
+    }
+}
+
+/* Desktop Collapsed - Icon Sizes & Cloud Sync */
+@media (min-width: 769px) {
+    body.sidebar-collapsed .sidebar-secondary-actions .secondary-btn {
+        width: 42px !important;
+        height: 42px !important;
+    }
+
+    body.sidebar-collapsed .sidebar-secondary-actions .secondary-btn i {
+        font-size: 20px !important;
+    }
+
+    /* Cloud Sync Icon in Collapsed Mode */
+    body.sidebar-collapsed .cloud-sync-title i {
+        font-size: 22px !important;
+        cursor: pointer !important;
+        transition: color 0.2s !important;
+    }
+    
+    body.sidebar-collapsed .cloud-sync-title i:hover {
+        color: var(--primary-color) !important;
+    }
+    
+    /* Status Indicator Dot for Cloud Icon */
+    body.sidebar-collapsed .cloud-sync-title {
+        position: relative !important;
+    }
+    
+    body.sidebar-collapsed .cloud-sync-title::after {
+        content: '' !important;
+        position: absolute !important;
+        top: -2px !important;
+        right: -2px !important;
+        width: 8px !important;
+        height: 8px !important;
+        border-radius: var(--radius-circle) !important;
+        background-color: #ccc !important; /* Default gray */
+        border: 2px solid #fff !important;
+    }
+    
+    /* Active Status Color (Need JS to toggle class on parent) */
+    body.sidebar-collapsed .cloud-sync-section.sync-active .cloud-sync-title::after {
+        background-color: #28a745 !important; /* Green */
+    }
+    
+    body.sidebar-collapsed .cloud-sync-section.sync-error .cloud-sync-title::after {
+        background-color: #dc3545 !important; /* Red */
+    }
+}
+
+/* =========================================
+   Final Mobile & Sync Status Polish
+   ========================================= */
+
+/* Ensure Mobile Menu Button is Visible */
+@media (max-width: 768px) {
+    #mobile-menu-btn {
+        display: flex !important;
+        z-index: 1001 !important; /* Ensure clickable */
+    }
+}
+
+/* Syncing Status for Collapsed Sidebar */
+@media (min-width: 769px) {
+    body.sidebar-collapsed .cloud-sync-section.sync-syncing .cloud-sync-title::after {
+        background-color: #ffc107 !important; /* Yellow */
+        animation: pulse 1.5s infinite !important;
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.2); }
+        100% { opacity: 1; transform: scale(1); }
+    }
+}
+
+/* =========================================
+   Fixes: Mobile Toggle, Collapsed Styles, Viewport
+   ========================================= */
+
+/* 1. Desktop Collapsed Sidebar - Circular Buttons */
+@media (min-width: 769px) {
+    body.sidebar-collapsed .sidebar-secondary-actions .secondary-btn {
+        border-radius: var(--radius-circle) !important;
+        width: 42px !important;
+        height: 42px !important;
+        padding: 0 !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+    
+    /* Ensure Cloud Sync is clickable and visible */
+    body.sidebar-collapsed .cloud-sync-section {
+        cursor: pointer !important;
+        pointer-events: auto !important;
+    }
+}
+
+/* 2. Search Options Text Color (Light Mode) */
+.search-option span {
+    color: var(--text-primary) !important;
+}
+
+body.dark-theme .search-option span {
+    color: #ffffff !important;
+}
+
+/* 3. Mobile Viewport Fix - Increase Bottom Padding */
+@media (max-width: 768px) {
+    .messages-container {
+        padding-bottom: 180px !important; /* Increased from 140px */
+    }
+}
+
+/* =========================================
+   Fixes: Viewport, Toggle Position, Mobile State
+   ========================================= */
+
+/* 1. Viewport Bottom Padding (Prevent Input Occlusion) */
+.messages-container {
+    padding-bottom: 200px !important; /* Desktop increased */
+}
+
+@media (max-width: 768px) {
+    .messages-container {
+        padding-bottom: 220px !important; /* Mobile increased significantly */
+    }
+}
+
+/* 2. Sidebar Toggle Position Consistency */
+@media (min-width: 769px) {
+    /* Restore top padding in collapsed mode to match expanded state */
+    body.sidebar-collapsed .sidebar-header {
+        padding: 24px 0 0 !important; 
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+    
+    /* Adjust toggle button margin to align with where it would be */
+    body.sidebar-collapsed #sidebar-toggle-btn {
+        margin: 0 0 12px 0 !important; /* Remove auto margins that might shift it */
+    }
+}
+
+/* 3. Secondary Actions - Force Circle in Collapsed */
+@media (min-width: 769px) {
+    body.sidebar-collapsed .sidebar-secondary-actions .secondary-btn {
+        width: 42px !important;
+        height: 42px !important;
+        min-width: 42px !important; /* Prevent squishing */
+        border-radius: var(--radius-circle) !important;
+        padding: 0 !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        overflow: hidden !important; /* Hide any overflowing text */
+    }
+    
+    body.sidebar-collapsed .sidebar-secondary-actions .secondary-btn span {
+        display: none !important; /* Double ensure text is gone */
+    }
+}
+
+/* =========================================
+   Fixes: Mobile Sidebar Layout, Collapsed Icons, Toggle Height
+   ========================================= */
+
+/* 1. Mobile Sidebar Layout Fix */
+@media (max-width: 768px) {
+    .sidebar {
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100% !important;
+        bottom: 0 !important;
+        padding-bottom: 0 !important; /* Remove extra padding if any */
+    }
+
+    .chat-history {
+        flex: 1 !important;
+        overflow-y: auto !important;
+        min-height: 0 !important; /* Crucial for flex scrolling */
+        padding-bottom: 20px !important;
+    }
+    
+    .sidebar-footer {
+        flex-shrink: 0 !important;
+        padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12px) !important;
+    }
+}
+
+/* 2. Collapsed Sidebar Icons - Specific Fix */
+@media (min-width: 769px) {
+    body.sidebar-collapsed #search-conversations-btn,
+    body.sidebar-collapsed #favorites-btn {
+        width: 42px !important;
+        height: 42px !important;
+        border-radius: var(--radius-circle) !important;
+        padding: 0 !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        min-width: 42px !important;
+    }
+}
+
+/* 3. Sidebar Toggle Height Consistency */
+.sidebar-title-container {
+    min-height: 36px !important; /* Match height of title/button combo */
+    display: flex !important;
+    align-items: center !important;
+}
+
+.sidebar-title {
+    line-height: 1.2 !important;
+    margin-bottom: 0 !important; /* Remove bottom margin from title itself */
+}
+
+/* Adjust container margin instead */
+.sidebar-title-container {
+    margin-bottom: 16px !important;
+}
+
+/* Collapsed State Adjustments */
+@media (min-width: 769px) {
+    body.sidebar-collapsed .sidebar-title-container {
+        margin-bottom: 12px !important;
+        justify-content: center !important;
+    }
+    
+    /* Ensure toggle button is centered vertically in the container */
+    body.sidebar-collapsed #sidebar-toggle-btn {
+        margin: 0 !important; /* Reset margins */
+    }
+}
+
+/* =========================================
+   Fixes: Circular Icons, Toggle Consistency, Mobile Reset
+   ========================================= */
+
+/* 1. Force Circular Icons (Aggressive) */
+@media (min-width: 769px) {
+    body.sidebar-collapsed #search-conversations-btn,
+    body.sidebar-collapsed #favorites-btn {
+        width: 42px !important;
+        height: 42px !important;
+        min-width: 42px !important;
+        max-width: 42px !important;
+        flex: 0 0 42px !important; /* Prevent flex resizing */
+        border-radius: var(--radius-circle) !important;
+        padding: 0 !important;
+        margin: 0 auto !important; /* Center in parent */
+        clip-path: circle(50% at 50% 50%) !important; /* Absolute circle clip */
+    }
+    
+    /* Ensure text is absolutely hidden and doesn't affect layout */
+    body.sidebar-collapsed .sidebar-secondary-actions .secondary-btn span {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+    }
+}
+
+/* 2. Toggle Button Position Consistency */
+@media (min-width: 769px) {
+    /* Match Expanded State Spacing exactly */
+    body.sidebar-collapsed .sidebar-title-container {
+        margin-bottom: 16px !important; /* Match expanded 16px */
+        min-height: 36px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    body.sidebar-collapsed #sidebar-toggle-btn {
+        margin: 0 !important;
+        position: relative !important;
+        /* If the expanded button is offset, we might need to match it. 
+           But usually centering is what's desired. */
+    }
+}
+
+/* 3. Mobile Sidebar Bottom Boundary */
+@media (max-width: 768px) {
+    .sidebar {
+        height: 100vh !important; /* Force full viewport height */
+        bottom: 0 !important;
+        top: 0 !important;
+        max-height: -webkit-fill-available; /* iOS fix */
+    }
+    
+    .chat-history {
+        padding-bottom: calc(20px + env(safe-area-inset-bottom)) !important;
+    }
+}
+
+/* =========================================
+   Fixes: Toggle Jump & Circular Icons Final
+   ========================================= */
+
+/* 1. Fix Sidebar Title Margin causing Jump */
+.sidebar-title {
+    margin-bottom: 0 !important; /* Remove margin to prevent flex alignment jump */
+}
+
+/* 2. Ensure Toggle Button Consistency */
+#sidebar-toggle-btn {
+    width: 36px !important;
+    height: 36px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 0 !important; /* Reset padding to rely on width/height */
+}
+
+/* 3. Circular Icons - Overflow Fix */
+@media (min-width: 769px) {
+    body.sidebar-collapsed .sidebar-secondary-actions .secondary-btn {
+        overflow: hidden !important; /* Ensure content doesn't spill */
+        border-radius: var(--radius-circle) !important;
+        /* Re-assert dimensions */
+        width: 42px !important;
+        height: 42px !important;
+        min-width: 42px !important;
+    }
+}
+
+/* =========================================
+   Message Navigation (Beta Style)
+   ========================================= */
+
+.message-nav {
+    right: 24px !important; /* More breathing room */
+    z-index: 1000 !important; /* Ensure visibility */
+    width: 40px !important; /* Increased width to accommodate wider items */
+}
+
+.message-nav-list {
+    overflow-x: hidden !important; /* Prevent horizontal scrollbar */
+    width: 100% !important;
+    align-items: center !important;
+}
+
+.message-nav-item {
+    width: 32px !important; /* Slightly wider touch target */
+    height: 12px !important; /* More compact vertical spacing */
+    opacity: 0.6;
+    transition: opacity 0.2s ease, transform 0.2s ease !important;
+}
+
+.message-nav-item:hover {
+    opacity: 1 !important;
+    transform: scale(1.1) translateX(-2px) !important;
+}
+
+.message-nav-item::before {
+    border-radius: var(--radius-xs) !important; /* Fully rounded pills */
+    height: 4px !important; /* Thicker, more visible bars */
+    right: 4px !important; /* Center in the wider container */
+    transition: width 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important; /* Bouncy transition */
+}
+
+/* User messages - Primary Accent */
+.message-nav-item.user::before {
+    background: var(--primary-color) !important;
+    width: 12px !important;
+}
+
+/* Assistant messages - Neutral */
+.message-nav-item.assistant::before {
+    background: var(--text-secondary) !important;
+    width: 6px !important;
+    opacity: 0.4 !important;
+}
+
+/* Hover/Active States */
+.message-nav-item:hover::before,
+.message-nav-item:focus::before,
+.message-nav-item.clicked::before {
+    width: 24px !important;
+    opacity: 1 !important;
+    background: var(--primary-color) !important; /* Highlight on interaction */
+}
+
+/* Preview Tooltip */
+.message-nav-preview {
+    right: 60px !important; /* Offset from new nav position */
+    background: var(--bg-primary) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12) !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 12px 16px !important;
+    font-family: 'Geist Latin', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    backdrop-filter: none !important; /* Clean solid look */
+}
+
+.message-nav-preview .preview-role {
+    font-size: 10px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary) !important;
+    margin-bottom: 6px !important;
+}
+
+.message-nav-preview .preview-text {
+    font-size: 13px !important;
+    color: var(--text-primary) !important;
+    line-height: 1.5 !important;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .message-nav-preview {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4) !important;
+}

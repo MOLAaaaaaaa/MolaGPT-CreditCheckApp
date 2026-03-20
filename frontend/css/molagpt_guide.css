@@ -1,0 +1,347 @@
+/* 轻量级引导提示系统样式 */
+.guide-hint-container {
+    position: fixed;
+    z-index: 10006;
+    max-width: 300px;
+    transform: scale(0.8) translateY(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.guide-hint-container.active {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.guide-hint-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.guide-hint-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), #d4949e);
+}
+
+.guide-hint-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.guide-hint-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), #d4949e);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.guide-hint-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.guide-hint-content {
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin-bottom: 12px;
+    font-size: 13px;
+}
+
+.guide-hint-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.guide-hint-btn {
+    padding: 6px 12px;
+    border-radius: var(--radius-md);
+    border: none;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.guide-hint-btn.primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.guide-hint-btn.primary:hover {
+    background: var(--primary-hover);
+    transform: translateY(-1px);
+}
+
+.guide-hint-btn.secondary {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+
+.guide-hint-btn.secondary:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.guide-hint-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    transition: all 0.2s ease;
+    opacity: 0.6;
+}
+
+.guide-hint-close:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    opacity: 1;
+}
+
+/* 指向箭头 */
+.guide-hint-arrow {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    transform: rotate(45deg);
+    z-index: -1;
+}
+
+.guide-hint-arrow.top {
+    top: -8px;
+    left: 50%;
+    margin-left: -8px;
+    border-bottom: none;
+    border-right: none;
+}
+
+.guide-hint-arrow.bottom {
+    bottom: -8px;
+    left: 50%;
+    margin-left: -8px;
+    border-top: none;
+    border-left: none;
+}
+
+.guide-hint-arrow.left {
+    left: -8px;
+    top: 50%;
+    margin-top: -8px;
+    border-top: none;
+    border-right: none;
+}
+
+.guide-hint-arrow.right {
+    right: -8px;
+    top: 50%;
+    margin-top: -8px;
+    border-bottom: none;
+    border-left: none;
+}
+
+.guide-hint-arrow.top-left {
+    top: -8px;
+    left: 24px;
+    border-bottom: none;
+    border-right: none;
+}
+
+.guide-hint-arrow.top-right {
+    top: -8px;
+    right: 24px;
+    border-bottom: none;
+    border-right: none;
+}
+
+.guide-hint-arrow.bottom-left {
+    bottom: -8px;
+    left: 24px;
+    border-top: none;
+    border-left: none;
+}
+
+.guide-hint-arrow.bottom-right {
+    bottom: -8px;
+    right: 24px;
+    border-top: none;
+    border-left: none;
+}
+
+/* 目标脉冲效果 */
+.guide-target-pulse {
+    position: relative;
+    animation: guide-target-pulse 2s ease-in-out infinite;
+}
+
+@keyframes guide-target-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(190, 114, 127, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 6px rgba(190, 114, 127, 0.1);
+    }
+}
+
+/* 小型指示器动画 */
+.guide-hint-indicator {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    z-index: 10005;
+    animation: guide-indicator-bounce 1.5s ease-in-out infinite;
+    box-shadow: 0 2px 8px rgba(190, 114, 127, 0.3);
+}
+
+@keyframes guide-indicator-bounce {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(-8px) scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+/* 自动隐藏定时器 */
+.guide-hint-timer {
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    height: 2px;
+    background: var(--primary-color);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    animation: guide-timer-countdown 8s linear forwards;
+}
+
+@keyframes guide-timer-countdown {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0%;
+    }
+}
+
+/* 深色主题适配 */
+body.dark-theme .guide-hint-card {
+    background: var(--dark-bg-primary, #1a1a1a);
+    border-color: var(--dark-border, #333);
+}
+
+body.dark-theme .guide-hint-close:hover {
+    background: var(--dark-bg-tertiary, #333);
+    color: var(--dark-text-primary, #e0e0e0);
+}
+
+body.dark-theme .guide-hint-btn.secondary {
+    border-color: var(--dark-border, #333);
+    color: var(--dark-text-secondary, #aaa);
+}
+
+body.dark-theme .guide-hint-btn.secondary:hover {
+    background: var(--dark-bg-tertiary, #333);
+    color: var(--dark-text-primary, #e0e0e0);
+}
+
+body.dark-theme .guide-hint-arrow {
+    background: var(--dark-bg-primary, #1a1a1a);
+    border-color: var(--dark-border, #333);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .guide-hint-container {
+        max-width: 260px;
+    }
+    
+    .guide-hint-card {
+        padding: 14px 16px;
+    }
+    
+    .guide-hint-content {
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+    
+    .guide-hint-actions {
+        gap: 6px;
+    }
+    
+    .guide-hint-btn {
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+}
+
+/* 淡入淡出动画 */
+.guide-hint-fade-in {
+    animation: guide-fade-in 0.4s ease-out forwards;
+}
+
+.guide-hint-fade-out {
+    animation: guide-fade-out 0.3s ease-in forwards;
+}
+
+@keyframes guide-fade-in {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes guide-fade-out {
+    from {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.9) translateY(10px);
+    }
+}

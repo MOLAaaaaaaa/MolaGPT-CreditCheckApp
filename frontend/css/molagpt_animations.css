@@ -1,0 +1,362 @@
+/* MolaGPT 高级动画效果 */
+
+/* 平滑滚动和页面过渡 */
+* {
+    scroll-behavior: smooth;
+}
+
+/* 悬浮效果增强 */
+.hover-lift {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+}
+
+/* 脉冲效果 */
+@keyframes gentlePulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.02);
+        opacity: 0.9;
+    }
+}
+
+.pulse-gentle {
+    animation: gentlePulse 3s ease-in-out infinite;
+}
+
+/* 渐现效果 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* 光晕效果 */
+@keyframes shimmer {
+    0% {
+        background-position: -200px 0;
+    }
+    100% {
+        background-position: calc(200px + 100%) 0;
+    }
+}
+
+.shimmer-effect {
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(190, 114, 127, 0.1),
+        transparent
+    );
+    background-size: 200px 100%;
+    animation: shimmer 2s infinite;
+}
+
+/* 弹性按钮效果 */
+@keyframes bounceIn {
+    0% {
+        transform: scale(0.3) rotate(-5deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05) rotate(0deg);
+    }
+    70% {
+        transform: scale(0.9) rotate(0deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.bounce-in {
+    animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+/* 呼吸效果 */
+@keyframes breathe {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(190, 114, 127, 0.3);
+    }
+    50% {
+        transform: scale(1.03);
+        box-shadow: 0 0 0 8px rgba(190, 114, 127, 0);
+    }
+}
+
+.breathe {
+    animation: breathe 3s ease-in-out infinite;
+}
+
+/* 微妙的摆动效果 */
+@keyframes gentleWobble {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(0.5deg);
+    }
+    75% {
+        transform: rotate(-0.5deg);
+    }
+}
+
+.gentle-wobble:hover {
+    animation: gentleWobble 0.5s ease-in-out;
+}
+
+/* 渐变边框动画 */
+@keyframes gradientBorder {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+.gradient-border {
+    position: relative;
+    background: linear-gradient(45deg, var(--primary-color), var(--primary-hover), var(--primary-color));
+    background-size: 200% 200%;
+    animation: gradientBorder 3s ease infinite;
+    border-radius: var(--radius-md);
+}
+
+.gradient-border::before {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    right: 1px;
+    bottom: 1px;
+    background: var(--bg-primary);
+    border-radius: calc(var(--radius-md) - 1px);
+    z-index: -1;
+}
+
+/* 流光效果 */
+@keyframes flowingLight {
+    0% {
+        transform: translateX(-100%) skewX(-15deg);
+    }
+    100% {
+        transform: translateX(200%) skewX(-15deg);
+    }
+}
+
+.flowing-light {
+    position: relative;
+    overflow: hidden;
+}
+
+.flowing-light::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 30%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    animation: flowingLight 3s ease-in-out infinite;
+    animation-delay: 1s;
+}
+
+/* 卡片翻转效果 */
+.flip-card {
+    perspective: 1000px;
+}
+
+.flip-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-style: preserve-3d;
+}
+
+.flip-card:hover .flip-card-inner {
+    transform: rotateY(180deg);
+}
+
+.flip-card-front, .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+.flip-card-back {
+    transform: rotateY(180deg);
+}
+
+/* 粒子效果背景 */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    33% {
+        transform: translateY(-10px) rotate(120deg);
+    }
+    66% {
+        transform: translateY(5px) rotate(240deg);
+    }
+}
+
+.particle {
+    position: absolute;
+    background: rgba(190, 114, 127, 0.1);
+    border-radius: 50%;
+    pointer-events: none;
+    animation: float 6s ease-in-out infinite;
+}
+
+.particle:nth-child(1) { 
+    width: 4px; height: 4px; 
+    top: 20%; left: 10%; 
+    animation-delay: 0s; 
+}
+.particle:nth-child(2) { 
+    width: 6px; height: 6px; 
+    top: 60%; left: 80%; 
+    animation-delay: 1s; 
+}
+.particle:nth-child(3) { 
+    width: 3px; height: 3px; 
+    top: 80%; left: 20%; 
+    animation-delay: 2s; 
+}
+.particle:nth-child(4) { 
+    width: 5px; height: 5px; 
+    top: 40%; left: 70%; 
+    animation-delay: 3s; 
+}
+
+/* 平滑的页面加载动画 */
+@keyframes pageLoad {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.page-enter {
+    animation: pageLoad 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* 响应式动画调整 */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* 高性能GPU加速 - 优化版本 */
+.gpu-accelerated {
+    will-change: auto;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* 模态框专用GPU加速 - 避免闪烁 */
+.modal-gpu-optimized {
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* 消息气泡特殊效果 - 简化版本 */
+.message-bubble-effect {
+    position: relative;
+}
+
+/* 优雅的焦点环 */
+.elegant-focus {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.elegant-focus:focus {
+    outline: none;
+    box-shadow: 
+        0 0 0 3px rgba(190, 114, 127, 0.12),
+        0 0 0 6px rgba(190, 114, 127, 0.06),
+        0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+/* 微交互反馈 */
+@keyframes tapFeedback {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+}
+
+.tap-feedback:active {
+    animation: tapFeedback 0.15s ease-out;
+}
+/* AI 生成标题的打字机动画效果 */
+@keyframes titleGlow {
+    0%, 100% {
+        text-shadow: 0 0 5px rgba(190, 114, 127, 0.3);
+    }
+    50% {
+        text-shadow: 0 0 10px rgba(190, 114, 127, 0.5);
+    }
+}
+
+.conversation-title {
+    transition: all 0.3s ease;
+}
+
+/* 标题更新时的微妙高亮效果 */
+.conversation-item .conversation-title.updating {
+    animation: titleGlow 2s ease-in-out;
+    color: var(--brand-color, #be727f);
+}
+
+/* 打字机效果的光标闪烁 */
+@keyframes cursorBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.conversation-title.typing::after {
+    content: '|';
+    display: inline-block;
+    margin-left: 2px;
+    animation: cursorBlink 0.8s infinite;
+    color: var(--brand-color, #be727f);
+}
