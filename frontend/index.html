@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <title>征信核验助手</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --bg-card: #ffffff;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --error: #ef4444;
+            --radius: 12px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+            background: var(--bg); color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* 向导 */
+        .wizard-overlay {
+            position: fixed; inset: 0; background: linear-gradient(135deg, #1e3a5f 0%, #2d1b69 100%);
+            display: flex; align-items: center; justify-content: center; z-index: 1000;
+        }
+        .wizard-overlay.hidden { display: none; }
+        .wizard-card {
+            background: var(--bg-card); border-radius: 16px; padding: 40px;
+            width: 90%; max-width: 520px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .wizard-logo { text-align: center; margin-bottom: 24px; }
+        .wizard-logo i { font-size: 48px; color: var(--primary); }
+        .wizard-logo h1 { font-size: 22px; margin-top: 12px; }
+        .wizard-step { display: none; }
+        .wizard-step.active { display: block; }
+        .wizard-step h2 { font-size: 18px; margin-bottom: 16px; }
+        .step-indicator {
+            display: flex; justify-content: center; gap: 8px; margin-bottom: 24px;
+        }
+        .step-dot {
+            width: 10px; height: 10px; border-radius: 50%; background: var(--border);
+        }
+        .step-dot.active { background: var(--primary); }
+        .step-dot.done { background: var(--success); }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; color: var(--text-secondary); }
+        .form-input {
+            width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px;
+            font-size: 14px; outline: none; background: var(--bg);
+        }
+        .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        .form-input[readonly] { opacity: 0.7; cursor: default; }
+        .btn {
+            padding: 10px 24px; border: none; border-radius: 8px; font-size: 14px; font-weight: 500;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-secondary { background: var(--border); color: var(--text); }
+        .btn-row { display: flex; justify-content: space-between; margin-top: 24px; }
+        .status-msg { font-size: 13px; margin-top: 8px; }
+        .status-msg.success { color: var(--success); }
+        .status-msg.error { color: var(--error); }
+
+        /* 主界面 */
+        .app { display: none; height: 100vh; flex-direction: column; }
+        .app.active { display: flex; }
+        .app-header {
+            padding: 12px 24px; background: var(--bg-card); border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .app-header h1 { font-size: 18px; display: flex; align-items: center; gap: 8px; }
+        .app-header h1 i { color: var(--primary); }
+        .app-body { flex: 1; display: flex; overflow: hidden; }
+        .upload-panel {
+            width: 360px; border-right: 1px solid var(--border); padding: 24px;
+            display: flex; flex-direction: column; gap: 16px; background: var(--bg-card);
+        }
+        .upload-zone {
+            border: 2px dashed var(--border); border-radius: var(--radius); padding: 40px 20px;
+            text-align: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+        }
+        .upload-zone:hover { border-color: var(--primary); background: rgba(37,99,235,0.03); }
+        .upload-zone i { font-size: 36px; color: var(--text-secondary); margin-bottom: 12px; }
+        .upload-zone p { color: var(--text-secondary); font-size: 14px; }
+        .upload-zone .hint { font-size: 12px; color: var(--text-secondary); margin-top: 8px; }
+        .file-list { flex: 1; overflow-y: auto; }
+        .file-item {
+            display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+            border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px;
+        }
+        .file-item i { color: var(--error); font-size: 20px; }
+        .file-item .file-name { flex: 1; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .file-item .file-remove { cursor: pointer; color: var(--text-secondary); }
+        .file-item .file-remove:hover { color: var(--error); }
+        .result-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .result-header {
+            padding: 16px 24px; border-bottom: 1px solid var(--border); background: var(--bg-card);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .result-body { flex: 1; overflow-y: auto; padding: 24px; }
+        .result-placeholder {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; color: var(--text-secondary); text-align: center;
+        }
+        .result-placeholder i { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+    </style>
+</head>
+<body>
+
+<!-- ============ 配置向导 ============ -->
+<div class="wizard-overlay" id="wizard">
+    <div class="wizard-card">
+        <div class="wizard-logo">
+            <i class="fas fa-shield-alt"></i>
+            <h1>征信核验助手</h1>
+        </div>
+        <div class="step-indicator">
+            <div class="step-dot active" id="dot-1"></div>
+            <div class="step-dot" id="dot-2"></div>
+            <div class="step-dot" id="dot-3"></div>
+        </div>
+
+        <!-- 第1步：激活 -->
+        <div class="wizard-step active" id="step-1">
+            <h2><i class="fas fa-key"></i> 软件激活</h2>
+            <div class="form-group">
+                <label>机器码</label>
+                <input type="text" class="form-input" id="w-machine-code" readonly>
+            </div>
+            <div class="form-group">
+                <label>激活码</label>
+                <input type="text" class="form-input" id="w-license-key" placeholder="请输入激活码">
+            </div>
+            <div id="w-license-status" class="status-msg"></div>
+            <div class="btn-row">
+                <span></span>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn btn-secondary" id="w-skip-activate">跳过试用</button>
+                    <button class="btn btn-primary" id="w-activate-btn">激活</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第2步：配置 Ollama -->
+        <div class="wizard-step" id="step-2">
+            <h2><i class="fas fa-robot"></i> 模型配置</h2>
+            <div class="form-group">
+                <label>Ollama 地址</label>
+                <input type="text" class="form-input" id="w-ollama-url" value="http://localhost:11434">
+            </div>
+            <div class="form-group">
+                <label>添加模型 ID</label>
+                <div style="display:flex;gap:8px;">
+                    <input type="text" class="form-input" id="w-model-id" placeholder="qwen2.5:7b" style="flex:1;">
+                    <button class="btn btn-primary" id="w-add-model">添加</button>
+                </div>
+            </div>
+            <div id="w-model-list" style="margin-top:12px;"></div>
+            <button class="btn btn-secondary" id="w-detect-models" style="margin-top:8px;width:100%;">
+                <i class="fas fa-search"></i> 自动检测已安装模型
+            </button>
+            <div class="btn-row">
+                <button class="btn btn-secondary" id="w-back-1">上一步</button>
+                <button class="btn btn-primary" id="w-next-2">下一步</button>
+            </div>
+        </div>
+
+        <!-- 第3步：数据管理 -->
+        <div class="wizard-step" id="step-3">
+            <h2><i class="fas fa-database"></i> 数据管理</h2>
+            <div class="form-group">
+                <label>数据存储模式</label>
+                <select class="form-input" id="w-storage-mode">
+                    <option value="shared">共享模式（所有人可见）</option>
+                    <option value="account">分账号管理</option>
+                    <option value="none">不留存历史记录</option>
+                </select>
+            </div>
+            <div style="background:var(--bg);padding:16px;border-radius:8px;margin-top:12px;">
+                <p style="font-size:13px;color:var(--text-secondary);line-height:1.6;">
+                    <i class="fas fa-info-circle"></i>
+                    配置完成后，可随时在设置中修改。所有数据均存储在本机，不会上传至任何外部服务器。
+                </p>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-secondary" id="w-back-2">上一步</button>
+                <button class="btn btn-primary" id="w-finish">完成配置</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ 主界面 ============ -->
+<div class="app" id="app">
+    <header class="app-header">
+        <h1><i class="fas fa-shield-alt"></i> 征信核验助手</h1>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <select id="model-select" class="form-input" style="width:200px;padding:6px 10px;"></select>
+            <button class="btn btn-secondary" id="open-settings" title="设置"><i class="fas fa-cog"></i></button>
+        </div>
+    </header>
+    <div class="app-body">
+        <div class="upload-panel">
+            <h3 style="font-size:15px;margin-bottom:4px;">上传征信报告</h3>
+            <div class="upload-zone" id="upload-zone">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>点击或拖拽 PDF 文件到此处</p>
+                <div class="hint">仅支持中国银行文字版 PDF</div>
+            </div>
+            <input type="file" id="pdf-input" accept=".pdf" multiple style="display:none;">
+            <div class="file-list" id="file-list"></div>
+            <button class="btn btn-primary" id="start-analysis" style="width:100%;" disabled>
+                <i class="fas fa-search"></i> 开始分析
+            </button>
+        </div>
+        <div class="result-panel">
+            <div class="result-header">
+                <span style="font-weight:600;">分析结果</span>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn btn-secondary" id="dual-compare-btn" disabled>
+                        <i class="fas fa-columns"></i> 双 AI 对比
+                    </button>
+                    <button class="btn btn-secondary" id="export-btn" disabled>
+                        <i class="fas fa-download"></i> 导出
+                    </button>
+                </div>
+            </div>
+            <div class="result-body" id="result-body">
+                <div class="result-placeholder">
+                    <i class="fas fa-file-pdf"></i>
+                    <p>上传征信报告 PDF 后，分析结果将在此处显示</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============ 向导逻辑 ============
+(function() {
+    let currentStep = 1;
+    let wizardModels = [];
+
+    async function init() {
+        // 检查是否已配置
+        try {
+            const resp = await fetch('/api/license/status');
+            const data = await resp.json();
+            document.getElementById('w-machine-code').value = data.machine_code || '';
+            if (data.activated) {
+                // 已激活，检查是否已完成向导
+                const cfgResp = await fetch('/api/config');
+                const cfg = await cfgResp.json();
+                if (cfg.models && cfg.models.length > 0) {
+                    // 跳过向导
+                    finishWizard();
+                    return;
+                }
+            }
+        } catch (e) {
+            console.error('初始化失败:', e);
+        }
+    }
+
+    function showStep(n) {
+        currentStep = n;
+        document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+        document.getElementById('step-' + n).classList.add('active');
+        for (let i = 1; i <= 3; i++) {
+            const dot = document.getElementById('dot-' + i);
+            dot.className = 'step-dot' + (i === n ? ' active' : (i < n ? ' done' : ''));
+        }
+    }
+
+    // 激活
+    document.getElementById('w-activate-btn').addEventListener('click', async () => {
+        const key = document.getElementById('w-license-key').value.trim();
+        if (!key) return;
+        const resp = await fetch('/api/license/activate', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({license_key: key}),
+        });
+        const data = await resp.json();
+        const el = document.getElementById('w-license-status');
+        if (data.success) {
+            el.textContent = '激活成功！';
+            el.className = 'status-msg success';
+            setTimeout(() => showStep(2), 800);
+        } else {
+            el.textContent = '激活码无效，请检查后重试';
+            el.className = 'status-msg error';
+        }
+    });
+    document.getElementById('w-skip-activate').addEventListener('click', () => showStep(2));
+
+    // 模型
+    function renderModelList() {
+        const el = document.getElementById('w-model-list');
+        if (wizardModels.length === 0) {
+            el.innerHTML = '<p style="font-size:13px;color:var(--text-secondary);">尚未添加模型</p>';
+            return;
+        }
+        el.innerHTML = wizardModels.map((m, i) => `
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg);border-radius:6px;margin-bottom:4px;">
+                <i class="fas fa-robot" style="color:var(--primary);"></i>
+                <span style="flex:1;font-size:14px;">${m}</span>
+                <span style="cursor:pointer;color:var(--text-secondary);" onclick="removeWizardModel(${i})"><i class="fas fa-times"></i></span>
+            </div>
+        `).join('');
+    }
+    window.removeWizardModel = function(i) {
+        wizardModels.splice(i, 1);
+        renderModelList();
+    };
+
+    document.getElementById('w-add-model').addEventListener('click', () => {
+        const input = document.getElementById('w-model-id');
+        const id = input.value.trim();
+        if (id && !wizardModels.includes(id)) {
+            wizardModels.push(id);
+            input.value = '';
+            renderModelList();
+        }
+    });
+
+    document.getElementById('w-detect-models').addEventListener('click', async () => {
+        const url = document.getElementById('w-ollama-url').value.trim();
+        try {
+            const resp = await fetch('/api/models/available');
+            const data = await resp.json();
+            if (data.models && data.models.length > 0) {
+                data.models.forEach(m => {
+                    if (!wizardModels.includes(m)) wizardModels.push(m);
+                });
+                renderModelList();
+            } else {
+                alert(data.error || '未检测到已安装模型，请确认 Ollama 是否运行');
+            }
+        } catch (e) {
+            alert('连接失败：' + e.message);
+        }
+    });
+
+    // 导航
+    document.getElementById('w-back-1').addEventListener('click', () => showStep(1));
+    document.getElementById('w-next-2').addEventListener('click', async () => {
+        // 保存 Ollama 配置和模型
+        const url = document.getElementById('w-ollama-url').value.trim();
+        await fetch('/api/config', {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ollama: {base_url: url}}),
+        });
+        for (const m of wizardModels) {
+            await fetch('/api/models', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({id: m}),
+            });
+        }
+        showStep(3);
+    });
+    document.getElementById('w-back-2').addEventListener('click', () => showStep(2));
+
+    // 完成
+    document.getElementById('w-finish').addEventListener('click', async () => {
+        const mode = document.getElementById('w-storage-mode').value;
+        await fetch('/api/config', {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({storage: {mode: mode}}),
+        });
+        finishWizard();
+    });
+
+    function finishWizard() {
+        document.getElementById('wizard').classList.add('hidden');
+        document.getElementById('app').classList.add('active');
+        loadApp();
+    }
+
+    // ============ 主界面逻辑 ============
+    async function loadApp() {
+        try {
+            const resp = await fetch('/api/config');
+            const cfg = await resp.json();
+            const select = document.getElementById('model-select');
+            select.innerHTML = '';
+            (cfg.models || []).forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m.id;
+                opt.textContent = m.id;
+                select.appendChild(opt);
+            });
+        } catch (e) {}
+
+        // PDF 上传
+        const zone = document.getElementById('upload-zone');
+        const input = document.getElementById('pdf-input');
+        const fileList = document.getElementById('file-list');
+        let files = [];
+
+        zone.addEventListener('click', () => input.click());
+        zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = 'var(--primary)'; });
+        zone.addEventListener('dragleave', () => { zone.style.borderColor = ''; });
+        zone.addEventListener('drop', e => {
+            e.preventDefault();
+            zone.style.borderColor = '';
+            addFiles(e.dataTransfer.files);
+        });
+        input.addEventListener('change', () => { addFiles(input.files); input.value = ''; });
+
+        function addFiles(newFiles) {
+            Array.from(newFiles).forEach(f => {
+                if (f.type === 'application/pdf' && !files.some(x => x.name === f.name)) {
+                    files.push(f);
+                }
+            });
+            renderFiles();
+        }
+
+        function renderFiles() {
+            fileList.innerHTML = files.map((f, i) => `
+                <div class="file-item">
+                    <i class="fas fa-file-pdf"></i>
+                    <span class="file-name">${f.name}</span>
+                    <span class="file-remove" onclick="removeFile(${i})"><i class="fas fa-times"></i></span>
+                </div>
+            `).join('');
+            document.getElementById('start-analysis').disabled = files.length === 0;
+        }
+        window.removeFile = function(i) { files.splice(i, 1); renderFiles(); };
+
+        // 开始分析（占位）
+        document.getElementById('start-analysis').addEventListener('click', () => {
+            const body = document.getElementById('result-body');
+            body.innerHTML = '<div style="padding:20px;"><i class="fas fa-spinner fa-spin"></i> 正在解析 PDF 并分析征信数据...</div>';
+            // TODO: 实际调用 /api/analyze
+        });
+    }
+
+    init();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+# 编译产出
+/credit-check-app
+/credit-check-app.exe
+/build/bin/
+
+# 配置和数据（运行时生成）
+config.json
+data/
+
+# Go
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
