@@ -7,77 +7,90 @@ import (
 	"strings"
 )
 
-// Rule 单条风险规则
 type Rule struct {
 	ID          string   `json:"id"`
-	Name        string   `json:"name"`        // 规则名称
-	Category    string   `json:"category"`     // 分类：逾期、负债、查询、担保、异常
-	Keywords    []string `json:"keywords"`     // 关键词匹配
-	Pattern     string   `json:"pattern"`      // 正则匹配（可选）
-	Severity    string   `json:"severity"`     // high / medium / low
-	Description string   `json:"description"`  // 说明
-	Builtin     bool     `json:"builtin"`      // 是否内置
+	Name        string   `json:"name"`
+	Category    string   `json:"category"`
+	Keywords    []string `json:"keywords"`
+	Pattern     string   `json:"pattern"`
+	Severity    string   `json:"severity"`
+	Description string   `json:"description"`
+	Builtin     bool     `json:"builtin"`
 }
 
-// MatchResult 匹配结果
 type MatchResult struct {
 	Rule     Rule   `json:"rule"`
-	Matched  string `json:"matched"`  // 匹配到的文本
-	Position int    `json:"position"` // 在原文中的位置
+	Matched  string `json:"matched"`
+	Position int    `json:"position"`
 }
 
-// Engine 风险匹配引擎
+// compiledRule 预编译后的规则
+type compiledRule struct {
+	Rule
+	keywordsLower []string
+	compiledRe    *regexp.Regexp
+}
+
 type Engine struct {
-	Rules []Rule
+	rules []compiledRule
 }
 
-// NewEngine 创建引擎，加载内置规则 + 自定义规则
+// NewEngine 创建引擎，预编译所有正则和关键词
 func NewEngine(customRulesPath string) *Engine {
-	e := &Engine{
-		Rules: builtinRules(),
-	}
+	raw := builtinRules()
 	if customRulesPath != "" {
 		if custom, err := loadRulesFromFile(customRulesPath); err == nil {
-			e.Rules = append(e.Rules, custom...)
+			raw = append(raw, custom...)
 		}
 	}
-	return e
+	compiled := make([]compiledRule, 0, len(raw))
+	for _, r := range raw {
+		cr := compiledRule{Rule: r}
+		// 预小写化关键词
+		cr.keywordsLower = make([]string, len(r.Keywords))
+		for i, kw := range r.Keywords {
+			cr.keywordsLower[i] = strings.ToLower(kw)
+		}
+		// 预编译正则
+		if r.Pattern != "" {
+			if re, err := regexp.Compile(r.Pattern); err == nil {
+				cr.compiledRe = re
+			}
+		}
+		compiled = append(compiled, cr)
+	}
+	return &Engine{rules: compiled}
 }
 
-// Match 对文本执行风险匹配
 func (e *Engine) Match(text string) []MatchResult {
 	var results []MatchResult
 	textLower := strings.ToLower(text)
 
-	for _, rule := range e.Rules {
+	for _, cr := range e.rules {
+		matched := false
 		// 关键词匹配
-		for _, kw := range rule.Keywords {
-			kwLower := strings.ToLower(kw)
+		for i, kwLower := range cr.keywordsLower {
 			idx := strings.Index(textLower, kwLower)
 			if idx >= 0 {
-				// 提取上下文
 				start := max(0, idx-20)
-				end := min(len(text), idx+len(kw)+20)
+				end := min(len(text), idx+len(cr.Keywords[i])+20)
 				results = append(results, MatchResult{
-					Rule:     rule,
+					Rule:     cr.Rule,
 					Matched:  text[start:end],
 					Position: idx,
 				})
-				break // 一条规则只报一次
+				matched = true
+				break
 			}
 		}
-		// 正则匹配
-		if rule.Pattern != "" {
-			re, err := regexp.Compile(rule.Pattern)
-			if err != nil {
-				continue
-			}
-			loc := re.FindStringIndex(text)
+		// 正则匹配（仅当关键词未命中时）
+		if !matched && cr.compiledRe != nil {
+			loc := cr.compiledRe.FindStringIndex(text)
 			if loc != nil {
 				start := max(0, loc[0]-20)
 				end := min(len(text), loc[1]+20)
 				results = append(results, MatchResult{
-					Rule:     rule,
+					Rule:     cr.Rule,
 					Matched:  text[start:end],
 					Position: loc[0],
 				})

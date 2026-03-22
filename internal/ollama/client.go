@@ -51,6 +51,14 @@ func NewClient(baseURL, apiKey string) *Client {
 	}
 }
 
+// chatURL 如果 BaseURL 已含完整路径则直接用，否则拼接默认路径
+func (c *Client) chatURL() string {
+	if strings.Contains(c.BaseURL, "/chat/completions") {
+		return c.BaseURL
+	}
+	return c.BaseURL + "/v1/chat/completions"
+}
+
 // ChatStream 发起流式对话，通过 onChunk 回调逐段返回内容
 // onChunk(content, reasoning, done)
 func (c *Client) ChatStream(req ChatRequest, onChunk func(string, string, bool)) error {
@@ -60,8 +68,7 @@ func (c *Client) ChatStream(req ChatRequest, onChunk func(string, string, bool))
 		return fmt.Errorf("序列化请求失败: %w", err)
 	}
 
-	url := c.BaseURL + "/v1/chat/completions"
-	httpReq, err := http.NewRequest("POST", url, bytes.NewReader(body))
+	httpReq, err := http.NewRequest("POST", c.chatURL(), bytes.NewReader(body))
 	if err != nil {
 		return fmt.Errorf("创建请求失败: %w", err)
 	}
@@ -112,49 +119,14 @@ func (c *Client) ChatStream(req ChatRequest, onChunk func(string, string, bool))
 	return scanner.Err()
 }
 
-// ChatSync 非流式对话，返回完整内容
-func (c *Client) ChatSync(req ChatRequest) (string, error) {
-	req.Stream = false
-	body, err := json.Marshal(req)
-	if err != nil {
-		return "", err
-	}
-
-	url := c.BaseURL + "/v1/chat/completions"
-	httpReq, err := http.NewRequest("POST", url, bytes.NewReader(body))
-	if err != nil {
-		return "", err
-	}
-	httpReq.Header.Set("Content-Type", "application/json")
-	if c.APIKey != "" {
-		httpReq.Header.Set("Authorization", "Bearer "+c.APIKey)
-	}
-
-	resp, err := http.DefaultClient.Do(httpReq)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	var result struct {
-		Choices []struct {
-			Message struct {
-				Content string `json:"content"`
-			} `json:"message"`
-		} `json:"choices"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return "", err
-	}
-	if len(result.Choices) == 0 {
-		return "", fmt.Errorf("空响应")
-	}
-	return result.Choices[0].Message.Content, nil
-}
-
-// ListModels 获取 Ollama 已安装的模型列表
+// ListModels 获取已安装的模型列表（Ollama 格式，非 Ollama 提供商可能不支持）
 func (c *Client) ListModels() ([]string, error) {
-	url := c.BaseURL + "/api/tags"
+	// 从 BaseURL 推导 Ollama API 地址
+	base := c.BaseURL
+	if idx := strings.Index(base, "/v1/"); idx > 0 {
+		base = base[:idx]
+	}
+	url := base + "/api/tags"
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err

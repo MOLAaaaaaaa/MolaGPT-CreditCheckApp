@@ -9,16 +9,27 @@ import (
 	"os"
 	"runtime"
 	"strings"
+	"sync"
 
 	"credit-check-app/internal/config"
 )
 
 const licenseSecret = "CreditCheckApp_License_2024_Secret"
 
-// GetMachineCode 生成机器码
-// Windows: 读取环境变量 COMPUTERNAME + PROCESSOR_IDENTIFIER + MAC 地址
-// Linux/其他: hostname + CPU 数 + MAC 地址
+var (
+	cachedMachineCode string
+	machineCodeOnce   sync.Once
+)
+
+// GetMachineCode 生成机器码（结果缓存，只计算一次）
 func GetMachineCode() string {
+	machineCodeOnce.Do(func() {
+		cachedMachineCode = computeMachineCode()
+	})
+	return cachedMachineCode
+}
+
+func computeMachineCode() string {
 	parts := []string{}
 
 	// hostname

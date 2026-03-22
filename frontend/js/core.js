@@ -13,7 +13,25 @@ var accumulatedText = '';
 
 window.modelName = '';
 window.modelTemp = 0.7;
-window.apiUrl = '';
+
+// ======================== 共享常量 ========================
+const KATEX_DELIMITERS = [
+    { left: '$$', right: '$$', display: true },
+    { left: '$', right: '$', display: false },
+    { left: '\\[', right: '\\]', display: true },
+    { left: '\\(', right: '\\)', display: false },
+];
+const PURIFY_CONFIG = {
+    ADD_TAGS: ['ref', 'div'],
+    ADD_ATTR: ['onclick', 'data-math-content', 'data-code-content', 'data-think-id', 'data-open', 'data-finished', 'data-think-phase', 'data-start-time']
+};
+function renderMath(el) {
+    if (!window.renderMathInElement) return;
+    try { renderMathInElement(el, { delimiters: KATEX_DELIMITERS, throwOnError: false }); } catch (e) {}
+}
+function sanitizeHtml(html) {
+    return window.DOMPurify ? DOMPurify.sanitize(html, PURIFY_CONFIG) : html;
+}
 
 // ======================== Markdown 渲染管线 ========================
 function initMarkdownRenderer() {
@@ -39,7 +57,7 @@ function initMarkdownRenderer() {
         const lang = token.info.trim().split(/\s+/)[0] || '';
         const highlighted = md.options.highlight(token.content, lang) || md.utils.escapeHtml(token.content);
         const langLabel = lang || 'text';
-        return `<div class="code-block-header"><span class="code-lang">${langLabel}</span><button class="code-copy-btn" onclick="copyCodeBlock(this)"><i class="fas fa-copy"></i> 复制</button></div><pre data-code-content="1"><code class="hljs language-${langLabel}">${highlighted}</code></pre>`;
+        return `<div class="code-block-header"><span class="code-lang">${langLabel}</span><button class="code-copy-btn" onclick="copyCodeBlock(this)"><i class="far fa-copy"></i> 复制</button></div><pre data-code-content="1"><code class="hljs language-${langLabel}">${highlighted}</code></pre>`;
     };
     return md;
 }
@@ -54,7 +72,7 @@ function copyCodeBlock(btn) {
     if (!pre) return;
     navigator.clipboard.writeText(pre.textContent).then(() => {
         btn.innerHTML = '<i class="fas fa-check"></i> 已复制';
-        setTimeout(() => { btn.innerHTML = '<i class="fas fa-copy"></i> 复制'; }, 2000);
+        setTimeout(() => { btn.innerHTML = '<i class="far fa-copy"></i> 复制'; }, 2000);
     });
 }
 
@@ -130,19 +148,7 @@ function updateResponseContent(newHTML) {
     }
 
     // KaTeX 渲染
-    if (window.renderMathInElement) {
-        try {
-            renderMathInElement(container, {
-                delimiters: [
-                    { left: '$$', right: '$$', display: true },
-                    { left: '$', right: '$', display: false },
-                    { left: '\\[', right: '\\]', display: true },
-                    { left: '\\(', right: '\\)', display: false },
-                ],
-                throwOnError: false,
-            });
-        } catch (e) { console.warn('KaTeX error:', e); }
-    }
+    renderMath(container);
 
     // 代码高亮
     container.querySelectorAll('pre code:not(.hljs)').forEach(block => {
@@ -160,37 +166,44 @@ function printMessage(message) {
     }
 
     const processedHtml = processMathContent(message, []);
-    const sanitizedHtml = window.DOMPurify
-        ? DOMPurify.sanitize(processedHtml, {
-            ADD_TAGS: ['ref', 'div'],
-            ADD_ATTR: ['onclick', 'data-math-content', 'data-code-content', 'data-think-id', 'data-open', 'data-finished', 'data-think-phase', 'data-start-time']
-        })
-        : processedHtml;
+    const sanitizedHtml = sanitizeHtml(processedHtml);
 
     updateResponseContent(sanitizedHtml);
 }
 
 function createMainResponseControls() {
     const controlsDiv = document.createElement('div');
-    controlsDiv.className = 'response-controls';
-    controlsDiv.innerHTML = `
-        <button class="response-control-btn copy-response-btn" onclick="copyFullResponse(this)" title="复制全部">
-            <i class="fas fa-copy"></i>
-        </button>
-        <button class="response-control-btn regenerate-btn" onclick="regenerateResponse()" title="重新生成">
-            <i class="fas fa-redo"></i>
-        </button>
-    `;
+    controlsDiv.style.cssText = 'display:flex;align-items:center;gap:12px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border-color, #e5e7eb)';
+
+    const copyBtn = document.createElement('span');
+    copyBtn.className = 'far fa-copy';
+    copyBtn.title = '复制全部';
+    copyBtn.style.cssText = 'cursor:pointer;font-size:16px;color:var(--text-secondary, #6b7280);padding:6px;border-radius:6px;transition:color 0.2s,background 0.2s';
+    copyBtn.onmouseover = () => { copyBtn.style.color = 'var(--primary-color, #be727f)'; copyBtn.style.background = 'var(--bg-secondary, #f3f4f6)'; };
+    copyBtn.onmouseout = () => { copyBtn.style.color = 'var(--text-secondary, #6b7280)'; copyBtn.style.background = 'none'; };
+    copyBtn.onclick = function() { copyFullResponse(this); };
+
+    const retryBtn = document.createElement('span');
+    retryBtn.className = 'fas fa-sync-alt';
+    retryBtn.title = '重新生成';
+    retryBtn.style.cssText = 'cursor:pointer;font-size:16px;color:var(--text-secondary, #6b7280);padding:6px;border-radius:6px;transition:color 0.2s,background 0.2s';
+    retryBtn.onmouseover = () => { retryBtn.style.color = 'var(--primary-color, #be727f)'; retryBtn.style.background = 'var(--bg-secondary, #f3f4f6)'; };
+    retryBtn.onmouseout = () => { retryBtn.style.color = 'var(--text-secondary, #6b7280)'; retryBtn.style.background = 'none'; };
+    retryBtn.onclick = function() { regenerateResponse(); };
+
+    controlsDiv.appendChild(copyBtn);
+    controlsDiv.appendChild(retryBtn);
     return controlsDiv;
 }
 
-function copyFullResponse(btn) {
+function copyFullResponse(el) {
     const responseEl = document.getElementById("chatgpt-response");
     if (!responseEl) return;
     const raw = responseEl.dataset.rawContent || responseEl.textContent;
     navigator.clipboard.writeText(raw).then(() => {
-        const icon = btn.querySelector('i');
-        if (icon) { icon.className = 'fas fa-check'; setTimeout(() => { icon.className = 'fas fa-copy'; }, 2000); }
+        el.className = 'fas fa-check';
+        el.style.color = 'var(--success-color, #10b981)';
+        setTimeout(() => { el.className = 'far fa-copy'; el.style.color = 'var(--text-secondary, #6b7280)'; }, 2000);
     });
 }
 
@@ -210,9 +223,6 @@ var chatHistoryManager = {
     },
     generateConversationId() {
         return 'sconv_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
-    },
-    setCurrentConversationIdForSession(id) {
-        localStorage.setItem(STORAGE_PREFIX + 'currentChat', id);
     }
 };
 
@@ -379,11 +389,10 @@ async function sendQuestion(isEditResubmit, prefilledUserMessage) {
     const trimmed = userAssistantMsgs.slice(-maxCtx);
     messages = messages.concat(trimmed);
 
-    const chatApiUrl = '/api/chat';
+    const chatApiUrl = window.apiUrl || appSettings.apiUrl || '/api/chat';
     const model = window.modelName || appSettings.modelName || 'qwen2.5:7b';
     const temperature = parseFloat(window.modelTemp || appSettings.temperature || 0.7);
 
-    // 构建请求体（直接发给 Go 后端，无需透传 api_url）
     const requestBody = {
         model: model,
         messages: messages,
@@ -502,11 +511,6 @@ async function sendQuestion(isEditResubmit, prefilledUserMessage) {
                     const delta = json.choices?.[0]?.delta;
                     if (!delta) return;
 
-                    // 普通内容
-                    if (delta.content) {
-                        accumulatedText += delta.content;
-                        scheduleRender();
-                    }
                     // 推理内容 (DeepSeek/Qwen 格式)
                     if (delta.reasoning_content) {
                         if (currentState !== 'THINKING') {
@@ -516,10 +520,12 @@ async function sendQuestion(isEditResubmit, prefilledUserMessage) {
                         accumulatedText += delta.reasoning_content;
                         scheduleRender();
                     }
-                    // 推理结束，普通内容开始
-                    if (delta.content && currentState === 'THINKING') {
-                        accumulatedText += '</think>';
-                        currentState = 'CONTENT';
+                    // 普通内容
+                    if (delta.content) {
+                        if (currentState === 'THINKING') {
+                            accumulatedText += '</think>';
+                            currentState = 'CONTENT';
+                        }
                         accumulatedText += delta.content;
                         scheduleRender();
                     }
@@ -710,7 +716,7 @@ async function saveCurrentConversation() {
 function updateUIConversationsList(convId, title) {
     let uiConvs = [];
     try {
-        uiConvs = JSON.parse(localStorage.getItem('mola_standalone_ui_conversations') || '[]');
+        uiConvs = JSON.parse(localStorage.getItem(STORAGE_PREFIX + 'ui_conversations') || '[]');
     } catch (e) { uiConvs = []; }
 
     const existing = uiConvs.findIndex(c => c.id === convId);
@@ -722,7 +728,7 @@ function updateUIConversationsList(convId, title) {
         uiConvs.unshift(entry);
     }
 
-    localStorage.setItem('mola_standalone_ui_conversations', JSON.stringify(uiConvs));
+    localStorage.setItem(STORAGE_PREFIX + 'ui_conversations', JSON.stringify(uiConvs));
 }
 
 async function loadConversation(convId) {
@@ -764,7 +770,7 @@ class AppState {
 
     async loadFromStorage() {
         try {
-            const savedUiConversations = localStorage.getItem('mola_standalone_ui_conversations');
+            const savedUiConversations = localStorage.getItem(STORAGE_PREFIX + 'ui_conversations');
             if (savedUiConversations) this.uiConversations = JSON.parse(savedUiConversations);
 
             if (!this.currentConversationId && this.uiConversations.length === 0) {
@@ -784,7 +790,7 @@ class AppState {
 
     async saveToStorage() {
         try {
-            localStorage.setItem('mola_standalone_ui_conversations', JSON.stringify(this.uiConversations));
+            localStorage.setItem(STORAGE_PREFIX + 'ui_conversations', JSON.stringify(this.uiConversations));
             const settings = { darkMode: this.darkMode, autoTheme: this.autoTheme };
             localStorage.setItem('mola_standalone_ui_settings', JSON.stringify(settings));
         } catch (error) {
@@ -1151,28 +1157,11 @@ class UIController {
                 }
 
                 const html = processMathContent(msg.content || '', []);
-                const sanitized = window.DOMPurify ? DOMPurify.sanitize(html, {
-                    ADD_TAGS: ['ref', 'div'],
-                    ADD_ATTR: ['onclick', 'data-math-content', 'data-code-content', 'data-think-id', 'data-open', 'data-finished', 'data-think-phase', 'data-start-time']
-                }) : html;
-                messageText.innerHTML = sanitized;
+                messageText.innerHTML = sanitizeHtml(html);
                 messageText.dataset.rawContent = msg.content || '';
                 messageText.appendChild(createMainResponseControls());
 
-                // KaTeX
-                if (window.renderMathInElement) {
-                    try {
-                        renderMathInElement(messageText, {
-                            delimiters: [
-                                { left: '$$', right: '$$', display: true },
-                                { left: '$', right: '$', display: false },
-                                { left: '\\[', right: '\\]', display: true },
-                                { left: '\\(', right: '\\)', display: false },
-                            ],
-                            throwOnError: false,
-                        });
-                    } catch (e) {}
-                }
+                renderMath(messageText);
 
                 messageContentWrapper.appendChild(messageText);
                 messageDiv.appendChild(avatar);
@@ -1192,7 +1181,7 @@ class UIController {
 
         let uiConvs = [];
         try {
-            uiConvs = JSON.parse(localStorage.getItem('mola_standalone_ui_conversations') || '[]');
+            uiConvs = JSON.parse(localStorage.getItem(STORAGE_PREFIX + 'ui_conversations') || '[]');
         } catch (e) {}
 
         const currentId = chatHistoryManager.getCurrentConversationId();
@@ -1370,6 +1359,7 @@ class UIController {
         const modal = this.elements.settingsModal;
         modal.classList.add('active');
 
+        // 先用本地缓存回填
         document.getElementById('setting-api-url').value = appSettings.apiUrl || '';
         document.getElementById('setting-api-key').value = appSettings.apiKey || '';
         document.getElementById('setting-system-prompt').value = appSettings.systemPrompt || '';
@@ -1378,6 +1368,14 @@ class UIController {
         this.elements.temperatureValue.textContent = appSettings.temperature;
         document.getElementById('setting-machine-code').value = '加载中...';
         document.getElementById('setting-license-key').value = appSettings.licenseKey || '';
+
+        // 从 Go 后端取最新配置回填（覆盖本地缓存）
+        fetch('/api/config').then(r => r.json()).then(cfg => {
+            if (cfg.ollama?.base_url) {
+                document.getElementById('setting-api-url').value = cfg.ollama.base_url;
+                appSettings.apiUrl = cfg.ollama.base_url;
+            }
+        }).catch(() => {});
 
         // 从 Go 后端获取真实机器码和激活状态
         if (window.authManager?.checkLicense) {
@@ -1426,16 +1424,20 @@ class UIController {
 
         appSettings.save();
 
-        // 同步 Ollama 配置到 Go 后端
-        if (apiUrl || apiKey) {
-            fetch('/api/config', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ollama: { base_url: apiUrl || undefined, api_key: apiKey || undefined },
-                }),
-            }).catch(() => {});
+        // 同步 API 配置到前端缓存和 Go 后端
+        appSettings.apiUrl = apiUrl;
+        appSettings.apiKey = apiKey;
+        if (apiUrl) {
+            window.apiUrl = apiUrl;
         }
+
+        fetch('/api/config', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                ollama: { base_url: apiUrl || undefined, api_key: apiKey || undefined },
+            }),
+        }).catch(() => {});
 
         // 如果填了新的激活码，走后端激活
         if (licenseKey && licenseKey !== appSettings.licenseKey) {
