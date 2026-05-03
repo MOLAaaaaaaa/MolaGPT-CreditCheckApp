@@ -12,6 +12,8 @@ import (
 	"credit-check-app/internal/config"
 	"credit-check-app/internal/license"
 	"credit-check-app/internal/ollama"
+	"credit-check-app/internal/pdf"
+	"credit-check-app/internal/risk"
 )
 
 var FrontendFS fs.FS
@@ -43,6 +45,17 @@ func Start(cfg *config.Config) error {
 	})
 	mux.HandleFunc("/api/chat", func(w http.ResponseWriter, r *http.Request) {
 		handleChat(w, r, cfg)
+	})
+	mux.HandleFunc("/api/profile", func(w http.ResponseWriter, r *http.Request) {
+		cfgMu.RLock()
+		defer cfgMu.RUnlock()
+		jsonResp(w, cfg.Profile)
+	})
+	mux.HandleFunc("/api/pdf/parse", func(w http.ResponseWriter, r *http.Request) {
+		handlePDFParse(w, r)
+	})
+	mux.HandleFunc("/api/risk/scan", func(w http.ResponseWriter, r *http.Request) {
+		handleRiskScan(w, r, cfg)
 	})
 
 	if FrontendFS != nil {
@@ -88,7 +101,7 @@ func handleConfig(w http.ResponseWriter, r *http.Request, cfg *config.Config) {
 		}
 		cfgMu.Lock()
 		if updates.Ollama.BaseURL != "" {
-			log.Printf("[配置] Ollama 地址更新: %s", updates.Ollama.BaseURL)
+			log.Printf("[配置] API Provider 地址更新: %s", updates.Ollama.BaseURL)
 			cfg.Ollama.BaseURL = updates.Ollama.BaseURL
 		}
 		if updates.Ollama.APIKey != "" {
@@ -309,5 +322,64 @@ func corsMiddleware(next http.Handler) http.Handler {
 			}
 		}
 		next.ServeHTTP(w, r)
+	})
+}
+
+// handlePDFParse 处理 PDF 上传并提取文本
+func handlePDFParse(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		httpError(w, 405, "仅支持 POST")
+		return
+	}
+
+	// 限制 50MB
+	r.ParseMultipartForm(50 << 20)
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		log.Printf("[PDF] 文件读取失败: %v", err)
+		httpError(w, 400, "请上传 PDF 文件")
+		return
+	}
+	defer file.Close()
+
+	log.Printf("[PDF] 收到文件: %s (%d bytes)", header.Filename, header.Size)
+
+	text, err := pdf.ExtractTextFromReader(file)
+	if err != nil {
+		log.Printf("[PDF] 解析失败: %s, 错误: %v", header.Filename, err)
+		httpError(w, 422, err.Error())
+		return
+	}
+
+	log.Printf("[PDF] 解析成功: %s, 提取 %d 字符", header.Filename, len(text))
+	jsonResp(w, map[string]any{
+		"filename": header.Filename,
+		"text":     text,
+		"length":   len(text),
+	})
+}
+
+// handleRiskScan 对文本进行风险项扫描
+func handleRiskScan(w http.ResponseWriter, r *http.Request, cfg *config.Config) {
+	if r.Method != "POST" {
+		httpError(w, 405, "仅支持 POST")
+		return
+	}
+
+	var req struct {
+		Text string `json:"text"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Text == "" {
+		httpError(w, 400, "请提供 text 字段")
+		return
+	}
+
+	engine := risk.NewEngine(cfg.RiskRule.CustomRulesPath)
+
+	matches := engine.Match(req.Text)
+	log.Printf("[风险] 扫描完成: %d 字符, 命中 %d 条规则", len(req.Text), len(matches))
+	jsonResp(w, map[string]any{
+		"matches": matches,
+		"total":   len(matches),
 	})
 }

@@ -104,6 +104,64 @@
             transition: border-color 0.2s;
         }
         .form-input:focus { border-color: var(--primary-color); }
+
+        /* PDF 上传区 */
+        .pdf-upload-zone {
+            display: flex;
+            justify-content: center;
+            /* 顶部留白随视口高度伸缩，把上传区推到视觉居中位置 */
+            padding: clamp(48px, 12vh, 140px) 16px 0;
+        }
+        .pdf-upload-droparea {
+            width: 100%;
+            max-width: 520px;
+            border: 2px dashed var(--border-color, #e5e7eb);
+            border-radius: 16px;
+            padding: 40px 32px;
+            text-align: center;
+            transition: all 0.3s;
+            background: var(--bg-secondary, #f7f8fa);
+        }
+        .pdf-upload-droparea.dragover {
+            border-color: var(--primary-color, #be727f);
+            background: rgba(190, 114, 127, 0.05);
+        }
+        .pdf-upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background: var(--primary-color, #be727f);
+            color: white;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .pdf-upload-btn:hover { background: var(--primary-hover, #a8606e); }
+        .pdf-upload-status {
+            margin-top: 16px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .pdf-upload-status.loading {
+            background: rgba(59, 130, 246, 0.08);
+            color: var(--text-primary);
+        }
+        .pdf-upload-status.success {
+            background: rgba(16, 185, 129, 0.08);
+            color: #059669;
+        }
+        .pdf-upload-status.error {
+            background: rgba(239, 68, 68, 0.08);
+            color: #dc2626;
+        }
+        /* 有消息后隐藏上传区 */
+        .has-messages .pdf-upload-zone { display: none; }
+        .has-messages .centered-welcome-header { display: none; }
     </style>
 </head>
 
@@ -270,10 +328,24 @@
                 </div>
             </header>
 
-            <!-- 居中布局欢迎头部 -->
+            <!-- 居中布局欢迎头部 — 上传优先 -->
             <div class="centered-welcome-header" id="centered-welcome-header">
-                <img src="img/pwaIcon1.png" alt="MolaGPT" class="centered-welcome-logo">
-                <span class="centered-welcome-text" id="centered-welcome-text">时刻准备着。</span>
+                <img src="img/pwaIcon1.png" alt="Logo" class="centered-welcome-logo">
+                <span class="centered-welcome-text" id="centered-welcome-text">上传征信报告，AI 帮您分析</span>
+            </div>
+
+            <!-- PDF 上传区（打开就看到） -->
+            <div class="pdf-upload-zone" id="pdf-upload-zone">
+                <div class="pdf-upload-droparea" id="pdf-droparea">
+                    <i class="fas fa-file-pdf" style="font-size:48px;color:var(--primary-color,#be727f);margin-bottom:16px;"></i>
+                    <h3 style="margin-bottom:8px;font-size:18px;">拖拽 PDF 文件到此处</h3>
+                    <p style="color:var(--text-secondary);margin-bottom:16px;font-size:14px;">或点击下方按钮选择文件 · 仅支持文字版 PDF</p>
+                    <label for="pdf-file-input" class="pdf-upload-btn">
+                        <i class="fas fa-upload"></i> 选择征信报告 PDF
+                    </label>
+                    <input type="file" id="pdf-file-input" accept=".pdf" class="hidden">
+                    <div id="pdf-upload-status" class="pdf-upload-status hidden"></div>
+                </div>
             </div>
 
             <div class="messages-container" id="messages-container">
@@ -570,7 +642,7 @@
     </script>
 
     <!-- 应用核心 -->
-    <script defer src="js/core.js?v=4"></script>
+    <script defer src="js/core.js?v=6"></script>
     <script defer src="js/login.js?v=1"></script>
     <script src="js/models.js?v=2"></script>
 </body>

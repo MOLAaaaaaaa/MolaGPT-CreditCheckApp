@@ -5,6 +5,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"unicode/utf8"
 )
 
 type Rule struct {
@@ -72,8 +73,8 @@ func (e *Engine) Match(text string) []MatchResult {
 		for i, kwLower := range cr.keywordsLower {
 			idx := strings.Index(textLower, kwLower)
 			if idx >= 0 {
-				start := max(0, idx-20)
-				end := min(len(text), idx+len(cr.Keywords[i])+20)
+				start := alignToRuneStart(text, max(0, idx-20))
+				end := alignToRuneStart(text, min(len(text), idx+len(cr.Keywords[i])+20))
 				results = append(results, MatchResult{
 					Rule:     cr.Rule,
 					Matched:  text[start:end],
@@ -87,8 +88,8 @@ func (e *Engine) Match(text string) []MatchResult {
 		if !matched && cr.compiledRe != nil {
 			loc := cr.compiledRe.FindStringIndex(text)
 			if loc != nil {
-				start := max(0, loc[0]-20)
-				end := min(len(text), loc[1]+20)
+				start := alignToRuneStart(text, max(0, loc[0]-20))
+				end := alignToRuneStart(text, min(len(text), loc[1]+20))
 				results = append(results, MatchResult{
 					Rule:     cr.Rule,
 					Matched:  text[start:end],
@@ -98,6 +99,21 @@ func (e *Engine) Match(text string) []MatchResult {
 		}
 	}
 	return results
+}
+
+// alignToRuneStart 把字节偏移对齐到 UTF-8 字符起点，避免按字节切片把多字节字符切断产生 �
+func alignToRuneStart(s string, idx int) int {
+	if idx <= 0 {
+		return 0
+	}
+	if idx >= len(s) {
+		return len(s)
+	}
+	// 向前回退到字符起点
+	for idx > 0 && !utf8.RuneStart(s[idx]) {
+		idx--
+	}
+	return idx
 }
 
 func builtinRules() []Rule {

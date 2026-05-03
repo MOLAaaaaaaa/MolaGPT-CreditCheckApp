@@ -49,7 +49,7 @@ func main() {
 		defer logFile.Close()
 	}
 
-	log.Println("========== 征信核验助手启动 ==========")
+	log.Println("进程启动")
 	log.Printf("工作目录: %s", exeDir())
 
 	// 加载配置
@@ -58,7 +58,7 @@ func main() {
 		log.Printf("加载配置失败，使用默认配置: %v", err)
 		cfg = config.Default()
 	} else {
-		log.Printf("配置加载成功: 端口=%d, Ollama=%s, 模型数=%d",
+		log.Printf("配置加载成功: 端口=%d, API Provider=%s, 模型数=%d",
 			cfg.Server.Port, cfg.Ollama.BaseURL, len(cfg.Models))
 	}
 
@@ -100,7 +100,7 @@ func main() {
 	// 平台相关：Windows 打开原生窗口，其他平台保持运行
 	runApp(localURL)
 
-	log.Println("========== 征信核验助手退出 ==========")
+	log.Println("进程退出")
 }
 
 func waitForServer(port int, timeout time.Duration) {

@@ -883,6 +883,8 @@ body.dark-theme .chat-pending-status[data-phase="routing-ready"] {
 .message.user {
     align-self: flex-end;
     max-width: 100%;
+    /* DOM 顺序是 [avatar, content]；用 row-reverse 让头像视觉上落在气泡右侧 */
+    flex-direction: row-reverse;
 }
 
 .message.user .message-avatar {

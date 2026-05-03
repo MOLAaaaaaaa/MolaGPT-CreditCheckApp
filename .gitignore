@@ -82,3 +82,4 @@ __pycache__/
 *.pprof
 coverage/
 *.coverprofile
+docs/requirements-alignment.md

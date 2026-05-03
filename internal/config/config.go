@@ -7,6 +7,7 @@ import (
 )
 
 type Config struct {
+	Profile  AppProfile     `json:"profile"`
 	Server   ServerConfig   `json:"server"`
 	Ollama   OllamaConfig   `json:"ollama"`
 	License  LicenseConfig  `json:"license"`
@@ -14,6 +15,11 @@ type Config struct {
 	Models   []ModelConfig  `json:"models"`
 	RiskRule RiskRuleConfig `json:"risk_rule"`
 }
+
+// ActiveProfile 返回当前生效的 AppProfile（Build Tag 控制）
+// 编译征信版: go build (默认)
+// 编译 MolaGPT 版: go build -tags molagpt
+var ActiveProfile = CreditCheckProfile
 
 type ServerConfig struct {
 	Host string `json:"host"`
@@ -45,7 +51,9 @@ type RiskRuleConfig struct {
 }
 
 func Default() *Config {
+	profile := ActiveProfile()
 	return &Config{
+		Profile: profile,
 		Server: ServerConfig{
 			Host: "0.0.0.0",
 			Port: 18080,

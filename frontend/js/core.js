@@ -288,7 +288,13 @@ var appSettings = {
 };
 
 // ======================== 主发送流程 ========================
-async function sendQuestion(isEditResubmit, prefilledUserMessage) {
+async function sendQuestion(isEditResubmit, prefilledUserMessage, options) {
+    // options: { displayMessage: string, summary: string }
+    //   displayMessage — 气泡显示内容（与实际发送内容分离，如 PDF 文件卡片）
+    //   summary        — 用作对话标题的摘要（覆盖默认从 content 截取）
+    const displayOverride = options && options.displayMessage;
+    const summaryOverride = options && options.summary;
+
     // 获取响应容器
     let responseText1 = document.getElementById("chatgpt-response");
     if (!responseText1) {
@@ -331,13 +337,23 @@ async function sendQuestion(isEditResubmit, prefilledUserMessage) {
         chatHistoryManager.setCurrentConversationId(conversationId);
     }
 
-    // 添加用户消息到 history
+    // 添加用户消息到 history（实际内容 + 可选的 display/summary 字段，用于回放显示与对话标题）
     if (!isEditResubmit) {
-        conversationHistory.push({ role: "user", content: userMessage.trim() });
+        const entry = { role: "user", content: userMessage.trim() };
+        if (typeof displayOverride === 'string' && displayOverride.length > 0) {
+            entry.display = displayOverride;
+        }
+        if (typeof summaryOverride === 'string' && summaryOverride.length > 0) {
+            entry.summary = summaryOverride;
+        }
+        conversationHistory.push(entry);
     }
 
-    // 添加用户消息气泡
-    addUserMessageBubble(userMessage.trim());
+    // 添加用户消息气泡（显示内容可与实际内容不同）
+    // isEditResubmit=true 时不重复添加（旧气泡已存在）
+    if (!isEditResubmit) {
+        addUserMessageBubble(displayOverride || userMessage.trim());
+    }
 
     // 移除旧的 chatgpt-response ID，防止冲突
     const oldResponse = document.getElementById('chatgpt-response');
@@ -385,7 +401,10 @@ async function sendQuestion(isEditResubmit, prefilledUserMessage) {
     messages.push({ role: 'system', content: systemPrompt });
 
     // 裁剪上下文
-    const userAssistantMsgs = conversationHistory.filter(m => m.role !== 'system');
+    // 过滤：去掉 system / 自定义元数据项（如 risk-report）；投影 {role, content} 剥离 display 等仅前端字段
+    const userAssistantMsgs = conversationHistory
+        .filter(m => m.role === 'user' || m.role === 'assistant')
+        .map(m => ({ role: m.role, content: m.content }));
     const trimmed = userAssistantMsgs.slice(-maxCtx);
     messages = messages.concat(trimmed);
 
@@ -622,8 +641,15 @@ function addUserMessageBubble(text) {
 
     const messageText = document.createElement('div');
     messageText.className = 'message-text markdown-body';
-    const cleanedText = escapeHtml(text).replace(/\n/g, '<br>');
-    messageText.innerHTML = window.DOMPurify ? DOMPurify.sanitize(cleanedText, { ALLOWED_TAGS: ['br'], ALLOWED_ATTR: [] }) : cleanedText;
+    // 如果内容以 HTML 标签开头（如文件卡片），直接渲染；否则转义
+    if (text.trim().startsWith('<div') || text.trim().startsWith('<span')) {
+        messageText.innerHTML = window.DOMPurify
+            ? DOMPurify.sanitize(text, { ADD_TAGS: ['i'], ADD_ATTR: ['class', 'style'] })
+            : text;
+    } else {
+        const cleanedText = escapeHtml(text).replace(/\n/g, '<br>');
+        messageText.innerHTML = window.DOMPurify ? DOMPurify.sanitize(cleanedText, { ALLOWED_TAGS: ['br'], ALLOWED_ATTR: [] }) : cleanedText;
+    }
     messageText.dataset.rawContent = text;
 
     messageContentWrapper.appendChild(messageText);
@@ -683,12 +709,16 @@ async function saveCurrentConversation() {
     const convId = chatHistoryManager.getCurrentConversationId();
     if (!convId) return;
 
-    // 生成标题（取第一条用户消息的前25字）
+    // 生成标题（优先用 user 消息的 summary 字段；否则取实际内容前 25 字）
     let title = '新对话';
     for (const msg of conversationHistory) {
         if (msg.role === 'user') {
-            const text = typeof msg.content === 'string' ? msg.content : '';
-            title = text.slice(0, 25) + (text.length > 25 ? '...' : '');
+            if (typeof msg.summary === 'string' && msg.summary.length > 0) {
+                title = msg.summary.slice(0, 40);
+            } else {
+                const text = typeof msg.content === 'string' ? msg.content : '';
+                title = text.slice(0, 25) + (text.length > 25 ? '...' : '');
+            }
             break;
         }
     }
@@ -1091,9 +1121,11 @@ class UIController {
             this.elements.messagesViewport.innerHTML = '';
         }
 
-        // 显示欢迎
+        // 显示欢迎 & PDF 上传区（移除 has-messages）
         const welcome = document.getElementById('centered-welcome-header');
         if (welcome) welcome.style.display = '';
+        const chatMain = document.querySelector('.chat-main-area');
+        if (chatMain) chatMain.classList.remove('has-messages');
 
         this.state.centeredLayoutMode = true;
         this.renderConversationList();
@@ -1119,8 +1151,11 @@ class UIController {
         this.renderConversationMessages(data.messages || []);
         this.state.centeredLayoutMode = false;
 
+        // 切到历史对话：隐藏欢迎 + PDF 上传区
         const welcome = document.getElementById('centered-welcome-header');
         if (welcome) welcome.style.display = 'none';
+        const chatMain = document.querySelector('.chat-main-area');
+        if (chatMain) chatMain.classList.add('has-messages');
 
         this.renderConversationList();
         this.closeSidebar();
@@ -1136,7 +1171,16 @@ class UIController {
         for (let i = 0; i < messages.length; i++) {
             const msg = messages[i];
             if (msg.role === 'user') {
-                addUserMessageBubble(typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content));
+                // 优先用 display（如 PDF 文件卡片）；否则回退到实际内容
+                const text = (typeof msg.display === 'string' && msg.display)
+                    ? msg.display
+                    : (typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content));
+                addUserMessageBubble(text);
+            } else if (msg.role === 'risk-report') {
+                // 风险扫描报告：调用通用渲染（与首次扫描时保持一致）
+                if (typeof window.renderRiskScanCard === 'function' && msg.data) {
+                    window.renderRiskScanCard(msg.data, viewport);
+                }
             } else if (msg.role === 'assistant') {
                 // 构建 assistant 消息 DOM（与原版一致的结构）
                 const messageDiv = document.createElement('div');
@@ -1553,6 +1597,9 @@ class UIController {
                 this.state.centeredLayoutMode = false;
                 const welcome = document.getElementById('centered-welcome-header');
                 if (welcome) welcome.style.display = 'none';
+                // 启动时若加载到旧对话，同步隐藏 PDF 上传区
+                const chatMain = document.querySelector('.chat-main-area');
+                if (chatMain) chatMain.classList.add('has-messages');
             }
         }
 
@@ -1582,4 +1629,202 @@ document.addEventListener('DOMContentLoaded', function () {
     window.renderConversationList = function () {
         ui.renderConversationList();
     };
+
+    // 加载 App Profile（品牌 + 功能开关）
+    fetch('/api/profile').then(r => r.json()).then(profile => {
+        window.appProfile = profile;
+        // 动态设置品牌
+        document.title = profile.app_name || document.title;
+        const welcomeText = document.getElementById('centered-welcome-text');
+        if (welcomeText && profile.app_subtitle) welcomeText.textContent = profile.app_subtitle;
+        const footerEl = document.querySelector('.sidebar-footer span');
+        if (footerEl && profile.footer_text) footerEl.textContent = profile.footer_text;
+    }).catch(() => {});
+});
+
+// ======================== PDF 上传处理 ========================
+document.addEventListener('DOMContentLoaded', function() {
+    const droparea = document.getElementById('pdf-droparea');
+    const fileInput = document.getElementById('pdf-file-input');
+    const statusEl = document.getElementById('pdf-upload-status');
+
+    // 同时给输入栏的回形针也加上 PDF 支持
+    const clipFileInput = document.getElementById('image-upload');
+
+    if (droparea && fileInput) {
+        // 拖拽事件
+        ['dragenter', 'dragover'].forEach(evt => {
+            droparea.addEventListener(evt, e => { e.preventDefault(); droparea.classList.add('dragover'); });
+        });
+        ['dragleave', 'drop'].forEach(evt => {
+            droparea.addEventListener(evt, e => { e.preventDefault(); droparea.classList.remove('dragover'); });
+        });
+        droparea.addEventListener('drop', e => {
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].name.toLowerCase().endsWith('.pdf')) {
+                handlePDFUpload(files[0]);
+            }
+        });
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) handlePDFUpload(fileInput.files[0]);
+        });
+    }
+
+    // 回形针上传的 PDF 也走同样流程
+    if (clipFileInput) {
+        const origHandler = clipFileInput.onchange;
+        clipFileInput.addEventListener('change', function() {
+            const file = clipFileInput.files[0];
+            if (file && file.name.toLowerCase().endsWith('.pdf')) {
+                handlePDFUpload(file);
+                clipFileInput.value = ''; // 清空防止重复
+            }
+        });
+    }
+
+    function showUploadStatus(msg, type) {
+        if (!statusEl) return;
+        statusEl.innerHTML = msg;
+        statusEl.className = 'pdf-upload-status ' + type;
+        statusEl.classList.remove('hidden');
+    }
+
+    function handlePDFUpload(file) {
+        if (!file.name.toLowerCase().endsWith('.pdf')) return;
+
+        showUploadStatus('<i class="fas fa-spinner fa-spin"></i> 正在解析 <strong>' + file.name + '</strong>...', 'loading');
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('/api/pdf/parse', { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    showUploadStatus('<i class="fas fa-exclamation-circle"></i> 解析失败: ' + data.error, 'error');
+                    return;
+                }
+
+                const charCount = data.length.toLocaleString();
+                showUploadStatus(
+                    '<i class="fas fa-check-circle"></i> <strong>' + data.filename + '</strong> 解析完成 (' + charCount + ' 字符)，正在分析...',
+                    'success'
+                );
+
+                // 隐藏上传区
+                const chatMain = document.querySelector('.chat-main-area');
+                if (chatMain) chatMain.classList.add('has-messages');
+
+                // 构造发给 AI 的隐式 prompt（用户看不到）
+                const analysisPrompt =
+                    '以下是用户上传的征信报告（' + data.filename + '），请逐项分析是否存在瑕疵，' +
+                    '标注风险等级（高/中/低），并给出改善建议。请用结构化格式输出。\n\n' +
+                    '---\n\n' + data.text;
+
+                // 用户气泡显示文件卡片，实际发送隐式 prompt
+                const fileCard = buildFileCardHTML(data.filename, charCount);
+
+                sendQuestion(false, analysisPrompt, {
+                    displayMessage: fileCard,
+                    summary: '征信报告分析：' + data.filename,
+                });
+
+                // 并行风险扫描
+                fetch('/api/risk/scan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: data.text })
+                }).then(r => r.json()).then(riskData => {
+                    if (riskData.matches && riskData.matches.length > 0) {
+                        window._lastRiskScanResult = riskData;
+                        // 推到 conversationHistory，便于持久化 + 历史回放
+                        if (typeof conversationHistory !== 'undefined') {
+                            conversationHistory.push({ role: 'risk-report', data: riskData });
+                        }
+                        // AI 回复完成后显示风险扫描结果
+                        showRiskScanResultsDeferred(riskData);
+                    }
+                }).catch(() => {});
+            })
+            .catch(err => {
+                showUploadStatus('<i class="fas fa-exclamation-circle"></i> 上传失败: ' + err.message, 'error');
+            });
+    }
+
+    function buildFileCardHTML(filename, charCount) {
+        // 注：这张卡片渲染在用户气泡（粉色背景，color: white）内部，必须显式定义颜色，
+        // 否则文字会继承 white 导致不可读
+        return '<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;' +
+            'background:#ffffff;border:1px solid rgba(0,0,0,0.06);' +
+            'border-radius:12px;max-width:360px;box-shadow:0 1px 3px rgba(0,0,0,0.08);">' +
+            '<i class="fas fa-file-pdf" style="font-size:28px;color:#e74c3c;flex-shrink:0;"></i>' +
+            '<div style="min-width:0;text-align:left;">' +
+            '<div style="font-weight:600;font-size:14px;color:#1f2937;line-height:1.3;' +
+            'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(filename) + '</div>' +
+            '<div style="font-size:12px;color:#6b7280;margin-top:2px;line-height:1.3;">' + charCount + ' 字符 · 请分析征信瑕疵</div>' +
+            '</div></div>';
+    }
+
+    // 纯渲染函数：把一份 riskData 渲染到 viewport 末尾
+    // 暴露到 window 供 renderConversationMessages 复用
+    window.renderRiskScanCard = function(riskData, viewport) {
+        if (!viewport || !riskData || !riskData.matches) return;
+
+        // severity (high/medium/low) → 中文标签
+        const severityLabel = { 'high': '高', 'medium': '中', 'low': '低' };
+        const severityColor = { 'high': '#dc2626', 'medium': '#d97706', 'low': '#2563eb' };
+
+        const riskCard = document.createElement('div');
+        riskCard.className = 'risk-scan-card';
+        riskCard.style.cssText = 'margin:16px auto;max-width:700px;padding:16px 20px;border:1px solid var(--border-color,#e5e7eb);border-radius:12px;background:var(--bg-primary,#fff);';
+
+        let html = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">' +
+            '<i class="fas fa-shield-alt" style="color:#e74c3c;font-size:18px;"></i>' +
+            '<strong style="font-size:15px;">风险项自动扫描</strong>' +
+            '<span style="font-size:12px;color:var(--text-secondary);margin-left:auto;">命中 ' + (riskData.total || riskData.matches.length) + ' 条</span></div>';
+
+        riskData.matches.forEach(m => {
+            const sev = (m.rule && m.rule.severity) || 'low';
+            const label = severityLabel[sev] || sev;
+            const color = severityColor[sev] || '#6b7280';
+            // 清理后端可能返回的 � 替换字符（UTF-8 边界裁切产生）
+            const matched = (m.matched || '').replace(/�/g, '');
+            html += '<div style="padding:8px 12px;margin-bottom:6px;border-left:3px solid ' + color + ';background:var(--bg-secondary,#f7f8fa);border-radius:0 8px 8px 0;font-size:13px;">' +
+                '<span style="color:' + color + ';font-weight:600;">[' + label + ']</span> ' +
+                '<strong>' + escapeHtml(m.rule.name || '') + '</strong>' +
+                '<div style="color:var(--text-secondary);margin-top:2px;">…' + escapeHtml(matched) + '…</div>' +
+                '</div>';
+        });
+
+        riskCard.innerHTML = html;
+        viewport.appendChild(riskCard);
+    };
+
+    // 上传后实时显示：等 AI 流结束（cursor 消失）再插入
+    function showRiskScanResultsDeferred(riskData) {
+        const checkAndShow = () => {
+            const cursor = document.getElementById('cursor');
+            if (cursor) {
+                setTimeout(checkAndShow, 500);
+                return;
+            }
+            const viewport = document.querySelector('.messages-viewport');
+            if (!viewport) return;
+            window.renderRiskScanCard(riskData, viewport);
+            // 持久化（这时 conversationHistory 已包含 risk-report 项，正常调 saveCurrentConversation）
+            if (typeof saveCurrentConversation === 'function') {
+                saveCurrentConversation();
+            }
+            // 滚动到底部
+            const container = document.getElementById('messages-container');
+            if (container) container.scrollTop = container.scrollHeight;
+        };
+        checkAndShow();
+    }
+
+    function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
 });
